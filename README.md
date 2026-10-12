@@ -19,9 +19,11 @@
 [![Agent Ready](https://img.shields.io/badge/Agent-Ready-00b0aa)](#agent-工作流)
 [![API](https://img.shields.io/badge/API-Professional-blue)](#专业-api)
 
-[快速开始](#快速开始) · [专业 API ¥199/永久](#专业-api) · [获取 API Key](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api) · [Agent 工作流](#agent-工作流) · [文档](#文档)
+[排版效果](#排版效果) · [快速开始](#快速开始) · [专业 API](#专业-api) · **[联系我 / 获取 API Key](#联系我)** · [文档](#文档)
 
 </div>
+
+接入有疑问？关注公众号「**极客杰尼**」，发消息「**API咨询**」；也可以直接发邮件到 [skrphper@gmail.com](mailto:skrphper@gmail.com)。[查看联系方式与二维码](#联系我)
 
 > [!TIP]
 > **v3.8.0 高级排版升级：83 个推荐场景对应 59 个推荐语法；新增 `cover-reveal`、`expand`，`gallery` 进入推荐目录，并扩展 12 种品牌图形符号与动效。** 新互动模块默认完整静态展示；显式 `first-layer` 仅为点击候选，微信内效果仍待验证。[布局指南](docs/LAYOUT.md) · [版本化安装](docs/INSTALL.md)
@@ -46,6 +48,20 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 
 ---
 
+## 排版效果
+
+先看文章排出来的样子，再选择使用方式。
+
+<p align="center">
+<img src="assets/theme-showcase/theme-showcase-default.png" alt="default 主题效果" width="180" />
+<img src="assets/theme-showcase/theme-showcase-bytedance.png" alt="bytedance 主题效果" width="180" />
+<img src="assets/theme-showcase/theme-showcase-elegant-gold.png" alt="elegant-gold 主题效果" width="180" />
+</p>
+
+[查看完整主题与样稿](https://www.md2wechat.cn/theme-gallery?utm_source=github&utm_medium=readme&utm_campaign=showcase) · [高级排版教程](docs/LAYOUT.md)
+
+---
+
 ## 快速开始
 
 ```bash
@@ -55,7 +71,7 @@ md2wechat config init --json
 md2wechat config validate --json
 ```
 
-API 模式预览和转换需要 md2wechat API Key。专业 API 统一版 ¥199/永久；可直接[查看价格与获取方式](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api)。完成凭证配置后，先检查文章，再把 HTML 明确写入本地文件：
+以下预览和转换命令使用**付费 API 模式**，需要先配置 md2wechat API Key。[联系我获取 Key](#联系我) · [查看服务范围与价格](https://www.md2wechat.cn/pricing?utm_source=github&utm_medium=readme&utm_campaign=api)。完成凭证配置后，先检查文章，再把 HTML 明确写入本地文件：
 
 ```bash
 md2wechat inspect article.md --json
@@ -71,6 +87,8 @@ md2wechat convert article.md --draft --cover cover.jpg
 ```
 
 如果使用可选的 `--wechat-account`，必须在 `inspect` 和 `convert` 两条命令中传入同一个账号名。
+
+想先了解免费 AI 模式？它会生成交给宿主 Agent / 外部 LLM 继续处理的 prompt，不会直接返回最终 HTML。见 [AI 模式使用步骤](docs/QUICKSTART.md#5-使用-ai-模式)。
 
 v3.6.0 新增跨平台草稿流程：先准备正文，再由宿主 Agent 按内置步骤操作已登录的浏览器。已安装版本先用 `capabilities --json` 确认支持：
 
@@ -93,9 +111,9 @@ md2wechat skills read md2wechat references/sync/workflow.md --json
 
 API 模式适合需要稳定输出、多人协作、批量发布或 Agent 自动化的场景。
 
-**统一版 ¥199/永久，一次购买。** 包含稳定转换接口、定期更新和专属创作交流群。
+专业 API 是付费服务，包含稳定转换接口、定期更新和专属创作交流群。服务范围与价格以官网及开通时确认的信息为准。
 
-[查看价格与获取 API Key](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api)
+[查看服务范围与价格](https://www.md2wechat.cn/pricing?utm_source=github&utm_medium=readme&utm_campaign=api) · **[联系我 / 获取 API Key](#联系我)** · [接口文档](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api)
 
 | 能力 | 免费 AI 模式 | 专业 API 模式 |
 |---|---|---|
@@ -107,21 +125,28 @@ API 模式适合需要稳定输出、多人协作、批量发布或 Agent 自动
 
 专业能力包括：
 
-- 48 个微信渲染精调主题：[theme-gallery](https://md2wechat.app/theme-gallery)
+- 48 个微信渲染精调主题：[主题画廊](https://www.md2wechat.cn/theme-gallery?utm_source=github&utm_medium=readme&utm_campaign=showcase)
 - 83 个主推高级排版场景条目，对应 59 个主推 `:::` 语法名；本次扩展含 12 种品牌图形符号及受位置约束的动效：[docs/LAYOUT.md](docs/LAYOUT.md)
 - 2 个兼容模块只用于旧稿迁移；加上 4 个基础增强能力，共计 65 项渲染层语法能力
 - 多公众号账号：[docs/CONFIG.md](docs/CONFIG.md)
 - 微信接口固定出口：[docs/WECHAT-CREDENTIALS.md](docs/WECHAT-CREDENTIALS.md)
 - 发布前 readiness 检查：[docs/DISCOVERY.md](docs/DISCOVERY.md)
 
-获取 API Key：
+---
 
-- 正式使用：[查看价格与获取方式](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api)
-- 微信咨询：关注公众号「极客杰尼」，备注「API咨询」
+## 联系我
+
+我是极客杰尼，md2wechat 的维护者。API 开通、安装配置、团队接入或商业授权，都可以通过下面的方式联系我。
+
+- **微信：** 扫码或搜索公众号「**极客杰尼**」，关注后发消息「**API咨询**」，说明你的使用需求。
+- **邮箱：** [skrphper@gmail.com](mailto:skrphper@gmail.com)
+- **接入咨询：** [整理接入需求](https://www.md2wechat.cn/contact?utm_source=github&utm_medium=readme&utm_campaign=contact)（在页面生成摘要后，通过微信或邮件联系我）
 
 <p align="center">
 <img src="assets/wechat.png" alt="公众号：极客杰尼" width="160" />
 </p>
+
+咨询时可以告诉我：你用哪个 Agent / 系统、希望完成什么任务，以及卡在哪一步。
 
 ---
 
@@ -226,12 +251,6 @@ md2wechat layout validate --file article.md --json
 
 本地 `layout validate` 只验证语法，不能证明远端 renderer 已部署；需要通过 API `preview` 或 `convert` 验证实际渲染。
 
-<p align="center">
-<img src="assets/theme-showcase/theme-showcase-default.png" alt="default 主题效果" width="180" />
-<img src="assets/theme-showcase/theme-showcase-bytedance.png" alt="bytedance 主题效果" width="180" />
-<img src="assets/theme-showcase/theme-showcase-elegant-gold.png" alt="elegant-gold 主题效果" width="180" />
-</p>
-
 完整教程见 [docs/LAYOUT.md](docs/LAYOUT.md)。
 
 这里的计数不是同一维度：83 是上游使用场景条目，一个语法名可以覆盖多个结构变体；59 是 `layout list --json` 默认返回的推荐语法名。兼容模块默认不混入推荐列表。完整计数契约见 [docs/LAYOUT.md](docs/LAYOUT.md)。
@@ -282,14 +301,15 @@ md2wechat layout validate --file article.md --json
 
 本项目采用 Source Available License。个人使用、学习、评估、非营利使用免费。商业使用、SaaS、客户交付、白标、再分发和训练数据用途需要商业授权。
 
-专业 API：[查看价格与获取 API Key](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api)。商业授权（SaaS、客户交付、白标、再分发和训练数据）请联系 `skrphper@gmail.com`。
+专业 API：[查看服务范围与价格](https://www.md2wechat.cn/pricing?utm_source=github&utm_medium=readme&utm_campaign=api) · [联系我获取 API Key](#联系我)。购买 API 服务不自动包含商业授权；商业授权（SaaS、客户交付、白标、再分发和训练数据）请[联系我](#联系我)。
 
 ---
 
 <div align="center">
 
-[文档](docs) · [Issues](https://github.com/geekjourneyx/md2wechat-skill/issues) · [Commercial licensing](mailto:skrphper@gmail.com)
+[文档](docs) · [Issues](https://github.com/geekjourneyx/md2wechat-skill/issues) · **[联系我](#联系我)**
 
 Made by [geekjourneyx](https://jieni.ai)
 
 </div>
+
