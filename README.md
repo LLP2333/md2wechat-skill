@@ -9,7 +9,7 @@
 
 写 Markdown，生成公众号排版，制作封面和文章配图，预览校验后推送草稿箱。
 
-<img src="assets/readme-layout-showcase.png" alt="md2wechat 排版展示：文章主视觉与高级排版模块示例" width="720" />
+<img src="assets/readme-layout-showcase.webp" alt="md2wechat 排版展示：文章主视觉与高级排版模块示例" width="720" />
 
 支持 Claude Code、Codex、WorkBuddy、Kimi Work、Hermes Agent、OpenClaw 等 Agent 通过 JSON discovery 稳定调用。
 
@@ -53,13 +53,17 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 先看文章排出来的样子，再选择使用方式。
 
 <p align="center">
-<img src="assets/theme-showcase/theme-comparison-showcase.png" alt="同一篇 Markdown 文章在不同主题下的排版示例" width="720" />
+<img src="assets/theme-showcase/theme-comparison-showcase.webp" alt="同一篇 Markdown 文章在不同主题下的排版示例" width="720" />
 </p>
 
 图中内容为排版示例；专业主题与高级模块的服务范围见[专业 API](#专业-api)。
 
 <details>
-<summary>查看单个主题样稿</summary>
+<summary>查看更多主题与模块样稿</summary>
+
+<p align="center">
+<img src="assets/theme-showcase/layout-module-showcase.webp" alt="高级排版模块在不同主题下的效果示例" width="720" />
+</p>
 
 <p align="center">
 <img src="assets/theme-showcase/theme-showcase-default.png" alt="default 主题效果" width="180" />
