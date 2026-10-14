@@ -5,11 +5,11 @@
   md2wechat
 </h1>
 
-<img src="assets/readme-header.gif" alt="md2wechat：原稿中的标题、配图与正文依次编排成文章的 3D 动画" width="720" />
-
 **面向 AI Agent 的微信公众号创作与发布 CLI**
 
 写 Markdown，生成公众号排版，制作封面和文章配图，预览校验后推送草稿箱。
+
+<img src="assets/readme-layout-showcase.png" alt="md2wechat 排版展示：文章主视觉与高级排版模块示例" width="720" />
 
 支持 Claude Code、Codex、WorkBuddy、Kimi Work、Hermes Agent、OpenClaw 等 Agent 通过 JSON discovery 稳定调用。
 
@@ -53,10 +53,21 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 先看文章排出来的样子，再选择使用方式。
 
 <p align="center">
+<img src="assets/theme-showcase/theme-comparison-showcase.png" alt="同一篇 Markdown 文章在不同主题下的排版示例" width="720" />
+</p>
+
+图中内容为排版示例；专业主题与高级模块的服务范围见[专业 API](#专业-api)。
+
+<details>
+<summary>查看单个主题样稿</summary>
+
+<p align="center">
 <img src="assets/theme-showcase/theme-showcase-default.png" alt="default 主题效果" width="180" />
 <img src="assets/theme-showcase/theme-showcase-bytedance.png" alt="bytedance 主题效果" width="180" />
 <img src="assets/theme-showcase/theme-showcase-elegant-gold.png" alt="elegant-gold 主题效果" width="180" />
 </p>
+
+</details>
 
 [查看完整主题与样稿](https://www.md2wechat.cn/theme-gallery?utm_source=github&utm_medium=readme&utm_campaign=showcase) · [高级排版教程](docs/LAYOUT.md)
 
