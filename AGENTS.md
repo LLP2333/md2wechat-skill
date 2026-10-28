@@ -76,7 +76,7 @@ AI 模式（`--mode ai`）不解析 `:::name` 高级排版块，这些块将以�
 7. When release assets or installer scripts change, run artifact smoke and installer smoke against the same bundle before calling the work done.
 8. If the task touches release or installer paths, keep the documented primary path versioned and non-`latest`.
 9. If the task touches Homebrew distribution, verify the tap formula is generated from the same release bundle and points only to versioned release assets.
-10. If the task publishes a new npm version, manually trigger `npx cnpm sync @geekjourneyx/md2wechat` after npm publish so `npmmirror` users do not get a stale tarball 404 on the fresh release.
+10. If the task publishes a new npm version, manually trigger `npx cnpm sync @qvqw2233/wechat-md` after npm publish so `npmmirror` users do not get a stale tarball 404 on the fresh release.
 11. Before a release that changes layout rendering, theme rendering, API conversion, or release assets, run a real rendering E2E smoke test against the local API when that service is available. If the local API service is not running in the current environment, record the skip reason and keep `make quality-gates` green; do not treat missing `localhost:3000` alone as a release blocker for unrelated changes.
 
 ```bash

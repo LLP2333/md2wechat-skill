@@ -9,7 +9,7 @@ const binaryPath = path.join(__dirname, "..", "bin", `md2wechat${ext}`);
 
 if (!fs.existsSync(binaryPath)) {
   console.error(
-    "md2wechat binary is missing. Reinstall with `npm install -g @geekjourneyx/md2wechat`."
+    "md2wechat binary is missing. Reinstall with `npm install -g @qvqw2233/wechat-md`."
   );
   process.exit(1);
 }

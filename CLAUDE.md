@@ -127,7 +127,7 @@ grep -r "config" internal/config/
 | `VERSION` | 文件内容 | `x.y.z` |
 | `package.json` | `"version"` 字段 | `x.y.z` |
 | `.claude-plugin/marketplace.json` | plugin version / owner / author | `x.y.z` / 当前维护者身份 |
-| `platforms/openclaw/md2wechat/SKILL.md` | `metadata.openclaw.install` | 唯一安装项必须是 `@geekjourneyx/md2wechat` 的 Node/npm 安装资源 |
+| `platforms/openclaw/md2wechat/SKILL.md` | `metadata.openclaw.install` | 唯一安装项必须是 `@qvqw2233/wechat-md` 的 Node/npm 安装资源 |
 | `CHANGELOG.md` | 新版本章节标题 | `## [x.y.z] - YYYY-MM-DD` |
 | `CHANGELOG.md` | 版本历史表格 | 新增一行 |
 

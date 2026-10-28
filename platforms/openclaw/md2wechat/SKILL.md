@@ -2,7 +2,7 @@
 name: md2wechat
 description: Convert Markdown to WeChat Official Account HTML, inspect supported providers/themes/prompts, generate article images, create drafts, write with creator styles, prepare title suggestions, and remove AI writing traces. Also use for unpublished Zhihu, CSDN, Toutiao, or Tencent Cloud Developer Community drafts through a browser. Use for product introductions, encyclopedia articles or entry drafts, and writing tailored to platforms or search targets.
 homepage: https://github.com/geekjourneyx/md2wechat-skill
-metadata: {"openclaw":{"emoji":"📝","requires":{"bins":["md2wechat"]},"install":[{"id":"node","kind":"node","package":"@geekjourneyx/md2wechat","bins":["md2wechat"],"label":"Install md2wechat (npm)"}]}}
+metadata: {"openclaw":{"emoji":"📝","requires":{"bins":["md2wechat"]},"install":[{"id":"node","kind":"node","package":"@qvqw2233/wechat-md","bins":["md2wechat"],"label":"Install md2wechat (npm)"}]}}
 ---
 
 # md2wechat

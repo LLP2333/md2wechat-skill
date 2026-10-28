@@ -9,7 +9,7 @@ const { fileURLToPath } = require("url");
 const pkg = require("../package.json");
 
 const VERSION = pkg.version;
-const REPO = "geekjourneyx/md2wechat-skill";
+const REPO = "LLP2333/md2wechat-skill";
 const PACKAGE_NAME = pkg.name;
 
 const isWindows = process.platform === "win32";

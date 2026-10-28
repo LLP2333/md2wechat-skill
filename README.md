@@ -26,7 +26,7 @@
 接入有疑问？关注公众号「**极客杰尼**」，发消息「**API咨询**」；也可以直接发邮件到 [skrphper@gmail.com](mailto:skrphper@gmail.com)。[查看联系方式与二维码](#联系我)
 
 > [!TIP]
-> **v3.8.0 高级排版升级：83 个推荐场景对应 59 个推荐语法；新增 `cover-reveal`、`expand`，`gallery` 进入推荐目录，并扩展 12 种品牌图形符号与动效。** 新互动模块默认完整静态展示；显式 `first-layer` 仅为点击候选，微信内效果仍待验证。[布局指南](docs/LAYOUT.md) · [版本化安装](docs/INSTALL.md)
+> **v3.9.0 本地免费排版：默认 `--mode local` 在本机渲染 48 个主题和全部高级排版模块（83 个推荐场景、59 个推荐语法），不需要 API Key。** 本社区版通过 `npm install -g @qvqw2233/wechat-md` 安装；互动模块在本地模式下完整静态展示，显式 `first-layer` 仅在 API 模式为点击候选，微信内效果仍待验证。[布局指南](docs/LAYOUT.md) · [版本化安装](docs/INSTALL.md)
 
 ---
 
@@ -80,7 +80,7 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 ## 快速开始
 
 ```bash
-npm install -g @geekjourneyx/md2wechat@3.8.0
+npm install -g @qvqw2233/wechat-md@3.9.0
 md2wechat version --json
 md2wechat config init --json
 md2wechat config validate --json

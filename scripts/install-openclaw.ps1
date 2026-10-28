@@ -1,6 +1,6 @@
 # md2wechat OpenClaw Windows installer
 # Usage:
-#   $env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/geekjourneyx/md2wechat-skill/releases/download/vX.Y.Z"
+#   $env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/LLP2333/md2wechat-skill/releases/download/vX.Y.Z"
 #   iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install-openclaw.ps1"))
 
 Write-Host "+--------------------------------------------------+" -ForegroundColor Cyan
@@ -10,7 +10,7 @@ Write-Host "|              crafted by geekjourneyx             |" -ForegroundCol
 Write-Host "+--------------------------------------------------+" -ForegroundColor Cyan
 Write-Host ""
 
-$repo = "geekjourneyx/md2wechat-skill"
+$repo = "LLP2333/md2wechat-skill"
 $version = if ($env:MD2WECHAT_VERSION) {
     $env:MD2WECHAT_VERSION
 } elseif ($env:MD2WECHAT_VERSION_DEFAULT) {

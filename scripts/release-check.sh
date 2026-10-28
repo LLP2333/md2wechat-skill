@@ -61,7 +61,7 @@ package_version="$(node -p "require('./package.json').version")"
 [[ "$package_version" == "$version" ]] || fail "VERSION ($version) does not match package.json version ($package_version)"
 
 package_name="$(node -p "require('./package.json').name")"
-[[ "$package_name" == "@geekjourneyx/md2wechat" ]] || fail "package.json name must stay @geekjourneyx/md2wechat"
+[[ "$package_name" == "@qvqw2233/wechat-md" ]] || fail "package.json name must stay @qvqw2233/wechat-md"
 
 if ! node -e "const pkg=require('./package.json'); if ('os' in pkg || 'cpu' in pkg) process.exit(1)"; then
   fail "package.json must not claim a global os/cpu matrix; scripts/install.js is the source of truth for supported npm targets"
@@ -72,7 +72,7 @@ grep -q 'MD2WECHAT_RELEASE_BASE_URL' scripts/install.sh || fail "scripts/install
 grep -q 'MD2WECHAT_INSTALL_DIR' scripts/install.sh || fail "scripts/install.sh must support MD2WECHAT_INSTALL_DIR"
 grep -q 'MD2WECHAT_RELEASE_BASE_URL' scripts/install.js || fail "scripts/install.js must support MD2WECHAT_RELEASE_BASE_URL"
 grep -q 'checksums.txt' scripts/install.js || fail "scripts/install.js must verify checksums.txt"
-grep -q 'npm install -g @geekjourneyx/md2wechat' scripts/run.js || fail "scripts/run.js must point users at the npm install command"
+grep -q 'npm install -g @qvqw2233/wechat-md' scripts/run.js || fail "scripts/run.js must point users at the npm install command"
 grep -q 'MD2WECHAT_VERSION' scripts/install.ps1 || fail "scripts/install.ps1 must support MD2WECHAT_VERSION"
 grep -q 'MD2WECHAT_RELEASE_BASE_URL' scripts/install.ps1 || fail "scripts/install.ps1 must support MD2WECHAT_RELEASE_BASE_URL"
 grep -q 'MD2WECHAT_INSTALL_DIR' scripts/install.ps1 || fail "scripts/install.ps1 must support MD2WECHAT_INSTALL_DIR"
@@ -193,7 +193,7 @@ const expected = {
     install: [{
       id: 'node',
       kind: 'node',
-      package: '@geekjourneyx/md2wechat',
+      package: '@qvqw2233/wechat-md',
       bins: ['md2wechat'],
       label: 'Install md2wechat (npm)',
     }],
@@ -218,10 +218,10 @@ for release_doc in docs/INSTALL.md docs/OPENCLAW.md; do
   [[ -z "$stale_release_url" ]] \
     || fail "$release_doc contains a stale versioned release URL: $stale_release_url"
 done
-grep -q 'npm install -g @geekjourneyx/md2wechat' README.md || fail "README must document the npm install path"
-grep -q 'npm install -g @geekjourneyx/md2wechat' docs/INSTALL.md || fail "docs/INSTALL.md must document the npm install path"
-grep -q 'npx cnpm sync @geekjourneyx/md2wechat' docs/INSTALL.md || fail "docs/INSTALL.md must document the post-publish npmmirror sync step"
-grep -q 'npx cnpm sync @geekjourneyx/md2wechat' docs/FAQ.md || fail "docs/FAQ.md must document the npmmirror sync recovery path"
+grep -q 'npm install -g @qvqw2233/wechat-md' README.md || fail "README must document the npm install path"
+grep -q 'npm install -g @qvqw2233/wechat-md' docs/INSTALL.md || fail "docs/INSTALL.md must document the npm install path"
+grep -q 'npx cnpm sync @qvqw2233/wechat-md' docs/INSTALL.md || fail "docs/INSTALL.md must document the post-publish npmmirror sync step"
+grep -q 'npx cnpm sync @qvqw2233/wechat-md' docs/FAQ.md || fail "docs/FAQ.md must document the npmmirror sync recovery path"
 ! grep -q 'brew install geekjourneyx/tap/md2wechat' README.md || fail "README must keep Homebrew install details in docs/INSTALL.md, not the primary quickstart"
 grep -q 'brew install geekjourneyx/tap/md2wechat' docs/INSTALL.md || fail "docs/INSTALL.md must document the tap install path"
 ! grep -q 'raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install.sh' README.md || fail "README must not point the md2wechat installer at main"

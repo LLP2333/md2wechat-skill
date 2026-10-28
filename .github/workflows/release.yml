@@ -9,7 +9,10 @@ permissions:
   contents: write
 
 jobs:
+  # This workflow publishes to upstream-owned npm, Homebrew and release URLs.
+  # Community builds are released manually, so skip it outside the upstream repo.
   quality-gates:
+    if: github.repository == 'geekjourneyx/md2wechat-skill'
     uses: ./.github/workflows/quality-gates.yml
 
   build-release:

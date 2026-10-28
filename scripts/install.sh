@@ -1,11 +1,11 @@
 #!/bin/bash
 # md2wechat 自动安装脚本
 # 适用于：macOS / Linux
-# 使用方法：curl -fsSL https://github.com/geekjourneyx/md2wechat-skill/releases/download/vX.Y.Z/install.sh | bash
+# 使用方法：curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/vX.Y.Z/install.sh | bash
 
 set -euo pipefail
 
-REPO="geekjourneyx/md2wechat-skill"
+REPO="LLP2333/md2wechat-skill"
 VERSION="${MD2WECHAT_VERSION:-}"
 if [ -z "$VERSION" ]; then
     if [ -n "${MD2WECHAT_VERSION_DEFAULT:-}" ]; then

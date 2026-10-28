@@ -1,15 +1,15 @@
 {
-  "name": "@geekjourneyx/md2wechat",
-  "version": "3.8.0",
-  "description": "Install the md2wechat CLI from the matching GitHub Release bundle.",
+  "name": "@qvqw2233/wechat-md",
+  "version": "3.9.0",
+  "description": "Community build of the md2wechat CLI with a free local renderer (no API key). Installs the matching GitHub Release binary.",
   "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/geekjourneyx/md2wechat-skill.git"
+    "url": "git+https://github.com/LLP2333/md2wechat-skill.git"
   },
-  "homepage": "https://github.com/geekjourneyx/md2wechat-skill#readme",
+  "homepage": "https://github.com/LLP2333/md2wechat-skill#readme",
   "bugs": {
-    "url": "https://github.com/geekjourneyx/md2wechat-skill/issues"
+    "url": "https://github.com/LLP2333/md2wechat-skill/issues"
   },
   "bin": {
     "md2wechat": "scripts/run.js"

@@ -42,7 +42,7 @@ NPM 安装要求 Node.js 18 或更高。可以把下面这段话直接发给 Wor
 
 ```text
 请在当前电脑检查 node --version 和 npm --version。Node.js 版本不低于 18 时，执行：
-npm install -g @geekjourneyx/md2wechat
+npm install -g @qvqw2233/wechat-md
 然后执行 md2wechat version --json 验证安装。不要初始化或修改任何配置，也不要上传图片、创建草稿或发布内容。请把每条命令的结果告诉我。
 ```
 

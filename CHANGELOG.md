@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-10-28
+
+### Added
+- **Local renderer (`--mode local`)**: renders Markdown, all 48 `type: api` themes and all 61 layout modules to inline-styled WeChat HTML on the local machine, with no API key and no network call for formatting
+  - Interactive modules (`expand`, `svg-reveal`, `svg-swipe-gallery`, `cover-reveal`) render as complete static content; `motion` fields are ignored
+  - `doctor --json` reports `readiness.format_local`; `capabilities --json` reports `layout.render_modes`
+
+### Changed
+- **Default convert mode**: `inspect` / `preview` / `convert` default to `local`; an unset `--mode` now follows `api.convert_mode` / `CONVERT_MODE`
+- **Publishing**: named WeChat accounts and `wechat.proxy_url` no longer require `MD2WECHAT_API_KEY`
+- **Distribution**: this community build is published to npm as `@qvqw2233/wechat-md` and downloads binaries from `LLP2333/md2wechat-skill` releases
+
+### Fixed
+- Docs and both skills no longer claim advanced layout modules require API mode
+
+### Removed
+- API-key validation (`HEAD /api/auth/validate`) before WeChat side effects
+
+### Technical Details
+- **New Files**: `internal/localrender/*`, `internal/converter/local.go`, `internal/layoutcatalog/segments.go`
+- **Modified Files**: converter, config, doctor, inspect, CLI commands, both `SKILL.md` files, README and docs
+
+### Migration Guide
+No migration required. Set `api.convert_mode: api` to keep using the remote renderer.
+
 ## [3.8.0] - 2026-09-24
 
 ### Added
@@ -1022,6 +1047,7 @@ No migration required. The write command is a new feature and doesn't affect exi
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [3.9.0] | 2026-10-28 | Free local renderer as default convert mode |
 | [1.9.0] | 2025-02-06 | Image Post (小绿书/newspic) support |
 | [1.8.0] | 2025-02-05 | OpenClaw support, directory simplification, run.sh refactoring |
 | [1.7.0] | 2025-01-25 | ModelScope image provider, write command stdin support |
