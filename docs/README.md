@@ -22,7 +22,7 @@
 - [新手快速开始](QUICKSTART.md)
 - [配置保姆级指南](CONFIG-WALKTHROUGH.md)
 - [配置指南](CONFIG.md)
-- [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)：包含高级版 API 固定出口配置
+- [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)：包含固定出口代理配置
 - [能力发现与 Prompt Catalog](DISCOVERY.md)
 - [Agent 使用指南](AGENT-GUIDE.md)
 - [公众号标题建议](TITLE_SUGGEST.md)
@@ -42,10 +42,10 @@
 
 ## 能力专题
 
-- [**高级排版模块教程（保姆级）**](LAYOUT.md) ← API 模式专属，59 个推荐语法名（83 个场景条目；2 个兼容模块、4 个基础增强能力，共 65 项渲染层语法能力）
+- [**高级排版模块教程（保姆级）**](LAYOUT.md) ← 默认本地模式可用，59 个推荐语法名（83 个场景条目；2 个兼容模块、4 个基础增强能力，共 65 项渲染层语法能力）
 - [配置保姆级指南](CONFIG-WALKTHROUGH.md)
 - [配置说明](CONFIG.md)
-- [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)：包含高级版 API 固定出口配置
+- [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)：包含固定出口代理配置
 - [能力发现与 Prompt Catalog](DISCOVERY.md)
 - [公众号标题建议](TITLE_SUGGEST.md)
 - [内置资产](CONFIG.md#内置资产)

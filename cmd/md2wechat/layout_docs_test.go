@@ -88,7 +88,6 @@ func TestLayoutDocumentationCountContract(t *testing.T) {
 	}
 	for path, required := range map[string][]string{
 		"../../docs/README.md": {"83 个场景条目", "59 个推荐语法名", "2 个兼容模块", "4 个基础增强能力", "65 项渲染层语法能力"},
-		"../../docs/SMOKE.md":  {"93 个结构 witness", "59 个 canonical", "32 个结构不同的 non-default branch", "2 个 compatibility witness", pinnedUpstreamFieldContractSHA},
 	} {
 		contents := readDocumentationFile(t, path)
 		for _, value := range required {

@@ -40,47 +40,22 @@ md2wechat --help
 
 **解决方案 A：重新安装 CLI**
 
-如果你在 macOS 上，优先：
-
 ```bash
-brew install geekjourneyx/tap/md2wechat
+npm install -g @qvqw2233/wechat-md
 ```
 
-如果你已经有稳定可用的 Node/npm 环境，也可以：
+**解决方案 B：把 npm 全局 bin 目录加到 PATH**
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.0
-```
-
-如果你已经有稳定可用的 Go 环境，也可以：
-
-```bash
-git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-```
-
-如果以上都不适合，再走固定版本安装脚本：
-
-```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-```
-
-安装脚本默认会把 CLI 放到：
-
-- macOS / Linux: `~/.local/bin/md2wechat`
-- Windows: 用户级安装目录或 `C:\Program Files\md2wechat\md2wechat.exe`
-
-**解决方案 B：把二进制目录加到 PATH**
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$(npm prefix -g)/bin:$PATH"
 md2wechat version --json
 ```
 
-如果你不确定装到了哪里，优先重新走安装脚本，不要手猜路径。
+Windows 下 `md2wechat.cmd` 在 `npm prefix -g` 输出的目录里，把这个目录加入用户 `Path` 后重新打开终端。
 
 ---
 
-### Q1.1：`npm install -g @qvqw2233/wechat-md@3.9.0` 提示 `npmmirror` tarball `404`
+### Q1.1：`npm install -g @qvqw2233/wechat-md@3.9.1` 提示 `npmmirror` tarball `404`
 
 这通常不是包没发布，而是你的 npm 当前走的是：
 
@@ -99,7 +74,7 @@ npm config get registry
 如果输出是 `https://registry.npmmirror.com/`，直接改用官方源安装：
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.0 --registry=https://registry.npmjs.org/
+npm install -g @qvqw2233/wechat-md@3.9.1 --registry=https://registry.npmjs.org/
 ```
 
 如果你想把默认源切回官方 npm：
@@ -125,7 +100,7 @@ npx cnpm sync @qvqw2233/wechat-md
 - `skills/md2wechat/`：给 Claude Code / Codex / OpenCode 的 coding-agent skill
 - `platforms/openclaw/md2wechat/`：给 OpenClaw / ClawHub 的专用 skill
 
-**OpenClaw 路径**还需要安装 `md2wechat` CLI，不是只把 `SKILL.md` 放进去就够了。CLI 主路径是 npm，skill 壳通过 ClawHub 安装。优先看：
+**OpenClaw 路径**还需要安装 `md2wechat` CLI，不是只把 `SKILL.md` 放进去就够了。CLI 和 OpenClaw skill 都随 npm 包一起安装，步骤见：
 
 - [OPENCLAW.md](OPENCLAW.md)
 
@@ -142,38 +117,26 @@ md2wechat skills read md2wechat --json
 
 这条路径用于读取当前二进制版本携带的 `skills/md2wechat/SKILL.md`，避免 Agent 读到旧 README、旧本地 skill 或依赖联网拉仓库。外部 skill 安装仍然有用，主要用于让 Claude Code / Codex / OpenCode 自动发现 `md2wechat` 能力。
 
-推荐先安装 CLI，再安装 skill：
+先安装 CLI，再把 npm 包里自带的 skill 复制到 Agent 的 skills 目录（以 Claude Code 为例）：
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.0
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+npm install -g @qvqw2233/wechat-md
+mkdir -p ~/.claude/skills
+cp -r "$(npm root -g)/@qvqw2233/wechat-md/skills/md2wechat" ~/.claude/skills/
 ```
 
-如果你已经有 Go 环境，再把第一步改成：
-
-```bash
-git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-```
-
-如果以上都不适合，再把第一步改成：
-
-```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-```
+Codex、OpenCode 等其他 Agent 把同一个目录复制到各自的 skills 目录即可。
 
 如果你懒得自己操作，也可以直接把下面的话发给 Claude Code / Codex / OpenCode：
 
 ```text
 请先安装 md2wechat CLI，再安装 md2wechat skill，并验证版本和能力发现都正常。
 执行：
-1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
-2. 如果我已经有稳定可用的 Go 环境，也可以改成：git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-4. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-5. 如果我是通过 install.sh 安装的，再执行：export PATH="$HOME/.local/bin:$PATH"
-6. md2wechat version --json
-7. md2wechat capabilities --json
-8. md2wechat config init
+1. npm install -g @qvqw2233/wechat-md
+2. 把 "$(npm root -g)/@qvqw2233/wechat-md/skills/md2wechat" 复制到你的 skills 目录
+3. md2wechat version --json
+4. md2wechat capabilities --json
+5. md2wechat config init
 如果失败，请继续排查，不要只返回错误原文。
 ```
 
@@ -182,8 +145,8 @@ curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/i
 ```text
 请帮我安装 OpenClaw 版 md2wechat，并验证 skill 和 CLI 都可用。
 执行：
-1. npm install -g @qvqw2233/wechat-md@3.9.0
-2. openclaw skills install @geekjourneyx/md2wechat
+1. npm install -g @qvqw2233/wechat-md
+2. mkdir -p ~/.openclaw/skills && cp -r "$(npm root -g)/@qvqw2233/wechat-md/platforms/openclaw/md2wechat" ~/.openclaw/skills/
 3. openclaw skills info md2wechat
 4. md2wechat version --json
 5. md2wechat config init
@@ -197,34 +160,10 @@ curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/i
 先做这几步：
 
 ```bash
-brew install geekjourneyx/tap/md2wechat
+npm install -g @qvqw2233/wechat-md
 md2wechat version --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-```
-
-如果你更习惯 npm，也可以把第一步改成：
-
-```bash
-npm install -g @qvqw2233/wechat-md@3.9.0
-md2wechat version --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-```
-
-如果你已经有 Go 环境，再改成：
-
-```bash
-git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-md2wechat version --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-```
-
-如果以上都不适合，再改成：
-
-```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-export PATH="$HOME/.local/bin:$PATH"
-md2wechat version --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+mkdir -p ~/.claude/skills
+cp -r "$(npm root -g)/@qvqw2233/wechat-md/skills/md2wechat" ~/.claude/skills/
 ```
 
 然后回到 Claudian：
@@ -334,7 +273,7 @@ md2wechat convert article.md
 md2wechat convert article.md --mode local
 ```
 
-本地模式在本机渲染主题和高级排版模块，不需要 API Key。只有显式传 `--mode api` 才调用远程排版服务，显式传 `--mode ai` 才进入 AI 模式。
+本地模式在本机渲染主题和高级排版模块，不需要 API Key。只有显式传 `--mode ai` 才进入 AI 模式。
 
 ---
 
@@ -355,35 +294,12 @@ md2wechat config show --format json
 重点看：
 
 - `config_file`
-- `md2wechat_base_url`
 - `image_provider`
 - `default_convert_mode`
 
 注意：
 
 - 不传 `--mode` 时，`inspect` / `preview` / `convert` 使用 `api.convert_mode` / `CONVERT_MODE`；显式 `--mode` 优先
-
----
-
-### Q8：API 模式提示需要 API Key
-
-只有 `--mode api` 需要 `md2wechat` 排版服务的 API Key。
-
-如果你没配 API Key，有两条路：
-
-**方案 A：改走本地模式（推荐，免费）**
-
-```bash
-md2wechat convert article.md --mode local
-```
-
-如果配置里写了 `api.convert_mode: api`，改成 `local` 或删掉这一行。
-
-**方案 B：配置 API Key**
-
-```bash
-export MD2WECHAT_API_KEY="your_key"
-```
 
 ---
 
@@ -467,7 +383,7 @@ md2wechat prompts show cover-default --kind image --json
 主题发现结果里要重点看两个字段：
 
 - `selectable`: `true` 才能作为 `convert --theme` 直接使用
-- `type`: 必须和转换模式匹配，本地模式和 API 模式选 `api` 主题，AI 模式选 `ai` 主题
+- `type`: 必须和转换模式匹配，本地模式选 `api` 主题，AI 模式选 `ai` 主题
 
 `api-collection` 这类集合描述会出现在发现结果里，但它不是可执行主题，`selectable` 会是 `false`。
 
@@ -777,24 +693,20 @@ ip xxx.xxx.xxx.xxx not in whitelist
 
 ### Q15.1：运行环境 IP 会变，能不能给微信请求单独走固定出口？
 
-可以。高级版 API 服务提供稳定的微信接口固定出口 IP，用来解决动态公网 IP 反复改微信白名单的问题。开通后，你会拿到完整的 `proxy_url` 和需要填写到微信后台的固定出口 IP。
+可以。准备一台有固定公网 IP 的 HTTP/HTTPS 前向代理，把完整代理 URL 写进配置：
 
 ```yaml
 wechat:
-  proxy_url: "https://wechat-egress-url-provided-by-md2wechat.example"
+  proxy_url: "http://user:pass@your-proxy.example.com:3128"
 ```
 
 或临时环境变量：
 
 ```bash
-export WECHAT_PROXY_URL="https://wechat-egress-url-provided-by-md2wechat.example"
+export WECHAT_PROXY_URL="http://user:pass@your-proxy.example.com:3128"
 ```
 
-`config show --format json` 里对应字段是 `wechat_proxy_url`，默认会隐藏代理密码。这个代理只影响微信上传、建草稿和图片消息发送；API 排版、图片生成 provider、发现命令和普通转换不走它。
-
-微信后台白名单填高级版 API 服务提供的固定出口 IP。不要自行拼接代理主机、端口或部署形态；以服务侧提供的完整 URL 为准。需要开通固定出口能力或企业私有化方案时，请联系作者进行 `API咨询`。`HTTPS_PROXY` 只适合作为全局代理兜底背景，优先用 `wechat.proxy_url` / `WECHAT_PROXY_URL`。
-
-代理模式只是本地配置，上传、草稿和图片消息副作用不需要 `MD2WECHAT_API_KEY`。
+`config show --format json` 里对应字段是 `wechat_proxy_url`，默认会隐藏代理密码。这个代理只影响微信上传、建草稿和图片消息发送；排版、图片生成 provider、发现命令和普通转换不走它。微信后台白名单填这台代理的出口 IP。`HTTPS_PROXY` 会把所有流量一起代理，优先用 `wechat.proxy_url` / `WECHAT_PROXY_URL`。
 
 ---
 
@@ -885,13 +797,12 @@ md2wechat prompts list --json
 - 默认 provider 是什么
 - 当前 provider 支持哪些模型
 - 当前有哪些 theme / prompt 真正可用
-- 当前 theme 是否可选择，以及适合 API 模式还是 AI 模式
+- 当前 theme 是否可选择，以及适合本地模式还是 AI 模式
 
 ### Why did `config validate` pass but `convert` still failed?
 
 `config validate` 只说明配置能被加载和解析，不代表每个转换路径都可执行。`convert` 还会检查：
 
-- `--mode api` 时是否有 API key（本地模式不需要）
 - 选择的主题是否存在
 - 主题是否 `selectable: true`
 - 主题 `type` 是否匹配当前 `--mode`
@@ -911,11 +822,11 @@ md2wechat themes list --json
 md2wechat doctor --json
 ```
 
-`doctor` 不调用远程 API，不验证 live auth，不上传图片，也不创建草稿。它只通过 `data.readiness.format_local` / `data.readiness.format_api` / `data.readiness.advanced_layout` / `data.readiness.draft` 报告本地配置、默认转换模式、默认主题、layout catalog 和 WeChat 草稿凭证是否具备可尝试性。本地模式下缺少 API key 只是非阻断警告。
+`doctor` 不联网，不验证 live auth，不上传图片，也不创建草稿。它只通过 `data.readiness.format_local` / `data.readiness.advanced_layout` / `data.readiness.draft` 报告本地配置、默认转换模式、默认主题、layout catalog 和 WeChat 草稿凭证是否具备可尝试性。
 
 ---
 
-### How do I discover layout modules supported in local and API mode?
+### How do I discover layout modules supported in local mode?
 
 ```bash
 md2wechat layout list --json           # 59 recommended modules (default lifecycle)
@@ -1057,4 +968,4 @@ systeminfo
 
 提交到：
 
-- [GitHub Issues](https://github.com/geekjourneyx/md2wechat-skill/issues)
+- [GitHub Issues](https://github.com/LLP2333/md2wechat-skill/issues)

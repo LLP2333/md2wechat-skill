@@ -51,7 +51,6 @@ wechat:
 api:
   convert_mode: "local"       # 默认本地渲染，不需要 API Key
   default_theme: "default"
-  # md2wechat_key: "你的 md2wechat API Key"   # 仅 convert_mode: api 时需要
 ```
 
 ### 3. 验证当前配置
@@ -76,7 +75,7 @@ wechat:
   secret: "你的微信公众号 Secret"
 ```
 
-如果你购买了高级 API 服务并需要管理多个公众号，可以在同一份配置里增加命名账号：
+如果你需要管理多个公众号，可以在同一份配置里增加命名账号：
 
 ```yaml
 wechat:
@@ -100,7 +99,7 @@ wechat:
 4. 直接配置的 `wechat.appid` / `wechat.secret`
 5. 唯一的命名账号
 
-命名账号只是本地配置：上传、生成并上传图片、创建草稿或图片消息都不需要 `MD2WECHAT_API_KEY`，CLI 也不会为此发起 API key 校验。`config show`、`config validate`、`doctor` 和 `config wechat-accounts` 是本地只读命令。
+命名账号只是本地配置，上传、生成并上传图片、创建草稿或图片消息时直接使用选中账号的微信凭证。`config show`、`config validate`、`doctor` 和 `config wechat-accounts` 是本地只读命令。
 
 查看本地已配置的公众号账号：
 
@@ -121,7 +120,7 @@ md2wechat config wechat-accounts --json
 3. 当前目录下的 `md2wechat.yaml` / `md2wechat.yml` / `md2wechat.json`
 
 对 Agent 来说，**默认应该优先检查 `~/.config/md2wechat/config.yaml`**。
-如果用户说“把 API 域名改成备用域名”“切换图片服务”“检查当前配置”，先运行：
+如果用户说“切换转换模式”“切换图片服务”“检查当前配置”，先运行：
 
 ```bash
 md2wechat config show --format json
@@ -130,7 +129,6 @@ md2wechat config show --format json
 这样可以直接看到当前生效的：
 
 - `config_file`
-- `md2wechat_base_url`
 - `image_provider`
 - `image_api_base`
 - `default_convert_mode`
@@ -144,45 +142,7 @@ md2wechat config show --format json
 
 ---
 
-## 默认 API 域名在哪里改
-
-项目当前默认值是：
-
-```text
-https://www.md2wechat.cn
-```
-
-它**不是写死不可改**。你有两种常用改法。
-
-### 方式一：改配置文件
-
-编辑 `~/.config/md2wechat/config.yaml`：
-
-```yaml
-api:
-  md2wechat_base_url: "https://www.md2wechat.cn"
-```
-
-如果你要切到备用域名：
-
-```yaml
-api:
-  md2wechat_base_url: "https://md2wechat.app"
-```
-
-### 方式二：用环境变量临时覆盖
-
-```bash
-export MD2WECHAT_BASE_URL="https://md2wechat.app"
-```
-
-环境变量优先级高于配置文件，适合：
-
-- 临时切换备用域名
-- CI / Agent 自动化
-- 不想修改全局配置文件的场景
-
-### 关于默认转换模式
+## 默认转换模式
 
 `inspect` / `preview` / `convert` 不传 `--mode` 时，按下面顺序决定模式：
 
@@ -203,7 +163,7 @@ md2wechat convert article.md
 md2wechat convert article.md --mode local
 ```
 
-本地模式在本机渲染主题和全部高级排版模块，不需要 API Key。`api` 调用远程 md2wechat.cn 排版服务并需要 `api.md2wechat_key`；`ai` 只生成交给宿主 Agent 的 prompt。
+本地模式在本机渲染主题和全部高级排版模块，不需要 API Key；`ai` 只生成交给宿主 Agent 的 prompt。
 
 ---
 
@@ -279,12 +239,10 @@ md2wechat convert article.md --mode local
 wechat:
   appid: "your_wechat_appid"
   secret: "your_wechat_secret"
-  # Advanced API service only. Paste the full proxy URL provided by md2wechat.
-  # proxy_url: "https://wechat-egress-url-provided-by-md2wechat.example"
+  # 可选：只让微信接口请求走你自己的固定出口代理
+  # proxy_url: "http://user:pass@your-proxy.example.com:3128"
 
 api:
-  md2wechat_key: "your_md2wechat_api_key"
-  md2wechat_base_url: "https://www.md2wechat.cn"
   image_key: "your_image_api_key"
   image_base_url: "https://ark.cn-beijing.volces.com/api/v3"
   image_provider: "volcengine"
@@ -310,7 +268,7 @@ image:
 这是你在 `config.yaml` 里实际填写的名字，例如：
 
 - `wechat.appid`
-- `api.md2wechat_key`
+- `api.image_key`
 - `api.image_base_url`
 - `api.background_type`
 
@@ -319,7 +277,7 @@ image:
 这是终端或 CI 里覆盖配置时使用的名字，例如：
 
 - `WECHAT_APPID`
-- `MD2WECHAT_API_KEY`
+- `IMAGE_API_KEY`
 - `IMAGE_API_BASE`
 - `DEFAULT_BACKGROUND_TYPE`
 
@@ -328,7 +286,7 @@ image:
 这是 CLI 为了更稳定的 machine-readable 输出而提供的扁平字段，例如：
 
 - `wechat_appid`
-- `md2wechat_api_key`
+- `image_api_key`
 - `image_api_base`
 - `default_background_type`
 
@@ -350,24 +308,17 @@ image:
 |--------|------|------|
 | `wechat.appid` | 创建草稿、上传图片时需要 | 微信公众号 AppID |
 | `wechat.secret` | 创建草稿、上传图片时需要 | 微信公众号 Secret |
-| `wechat.proxy_url` | 否 | 高级版 API 固定出口能力：仅微信上传、草稿和图片消息副作用使用的 HTTP/HTTPS 前向代理 |
+| `wechat.proxy_url` | 否 | 只给微信上传、草稿和图片消息使用的 HTTP/HTTPS 前向代理 |
 
-`wechat.proxy_url` 是高级版 API 服务的固定出口能力，用来解决运行环境公网 IP 动态变化导致微信白名单反复失效的问题。开通后，服务侧会提供两项信息：
+`wechat.proxy_url` 用来解决运行环境公网 IP 动态变化、导致微信白名单反复失效的问题：准备一台有固定公网 IP 的代理服务器，把它的完整代理 URL 写到配置文件或 `WECHAT_PROXY_URL`，再把这台代理的出口 IP 填进微信后台 `IP 白名单`。
 
-- 完整的 `proxy_url`，直接粘贴到配置文件或 `WECHAT_PROXY_URL`
-- 稳定的微信接口出口 IP，填写到微信后台 `IP 白名单`
+`wechat.proxy_url` 只影响微信接口请求，不影响排版、图片生成 provider、主题/提示词发现或普通转换，也不需要任何额外的 API Key。`HTTPS_PROXY` 会把所有流量一起代理，优先使用 `wechat.proxy_url` / `WECHAT_PROXY_URL`。
 
-`wechat.proxy_url` 只影响微信 API 副作用，不影响 API 排版、图片生成 provider、主题/提示词发现或普通转换。启用后，上传、建草稿和图片消息发送不需要 `MD2WECHAT_API_KEY`。
-
-不要自行拼接代理主机、端口或部署形态；以高级版 API 服务提供的完整 URL 为准。公开配置文档不约定代理端口。需要固定出口能力或企业私有化方案时，请联系作者进行 `API咨询`。`HTTPS_PROXY` 只作为全局代理兜底背景理解，优先使用 `wechat.proxy_url` / `WECHAT_PROXY_URL`，避免把非微信流量一起代理。
-
-### API 转换配置
+### 转换配置
 
 | 配置项 | 必需 | 说明 | 默认值 |
 |--------|------|------|--------|
-| `api.md2wechat_key` | 仅 `convert_mode: api` 需要 | md2wechat API Key | - |
-| `api.md2wechat_base_url` | 否 | 排版 API 域名 | `https://www.md2wechat.cn` |
-| `api.convert_mode` | 否 | 默认转换模式：`local` / `api` / `ai` | `local` |
+| `api.convert_mode` | 否 | 默认转换模式：`local` / `ai` | `local` |
 | `api.default_theme` | 否 | 默认主题 | `default` |
 | `api.background_type` | 否 | 背景类型 | `none` |
 | `api.http_timeout` | 否 | HTTP 超时秒数 | `30` |
@@ -404,8 +355,6 @@ image:
 | `WECHAT_SECRET` | `wechat.secret` |
 | `WECHAT_ACCOUNT` | 命名账号选择 |
 | `WECHAT_PROXY_URL` | `wechat.proxy_url` |
-| `MD2WECHAT_API_KEY` | `api.md2wechat_key` |
-| `MD2WECHAT_BASE_URL` | `api.md2wechat_base_url` |
 | `IMAGE_API_KEY` | `api.image_key` |
 | `IMAGE_API_BASE` | `api.image_base_url` |
 | `IMAGE_PROVIDER` | `api.image_provider` |
@@ -438,8 +387,6 @@ image:
 | `wechat_secret` | `wechat.secret` |
 | `wechat_proxy_url` | `wechat.proxy_url` |
 | `wechat_account` | 当前命名账号，直接账号为空字符串 |
-| `md2wechat_api_key` | `api.md2wechat_key` |
-| `md2wechat_base_url` | `api.md2wechat_base_url` |
 | `image_api_key` | `api.image_key` |
 | `image_api_base` | `api.image_base_url` |
 | `image_provider` | `api.image_provider` |
@@ -461,15 +408,6 @@ image:
 ### 只预览，不创建草稿
 
 最小需要：不需要任何配置，默认本地模式即可预览和转换。
-
-如果要改用远程 API 排版：
-
-```yaml
-api:
-  md2wechat_key: "your_md2wechat_api_key"
-  md2wechat_base_url: "https://www.md2wechat.cn"
-  convert_mode: "api"
-```
 
 ### 需要上传图片和创建草稿
 
@@ -523,19 +461,19 @@ api:
 
 ```yaml
 api:
-  md2wechat_base_url: "https://www.md2wechat.cn"
+  image_base_url: "https://ark.cn-beijing.volces.com/api/v3"
 ```
 
 2. 当前终端又执行了：
 
 ```bash
-export MD2WECHAT_BASE_URL="https://md2wechat.app"
+export IMAGE_API_BASE="https://api.openai.com/v1"
 ```
 
 最终生效的是：
 
 ```text
-https://md2wechat.app
+https://api.openai.com/v1
 ```
 
 ---
@@ -551,7 +489,7 @@ md2wechat config validate
 推荐排查顺序：
 
 1. 先看 `config_file` 指向哪个文件
-2. 再看 `md2wechat_base_url` 是否真是你想要的域名
+2. 再看 `default_convert_mode` 是否是你想要的模式
 3. 再看 `image_provider` / `image_api_base` 是否匹配
    这里的 `image_api_base` 是 `config show --format json` 的输出字段；配置文件里对应的是 `api.image_base_url`
 4. 最后检查环境变量是否把文件里的值覆盖掉了

@@ -38,11 +38,11 @@
 
 #### Windows 解决方法：
 
-**推荐方式：重新走固定版本安装器**
+**推荐方式：重新安装并确认 npm 全局目录**
 
 ```powershell
-$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0"
-iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
+npm install -g @qvqw2233/wechat-md
+npm prefix -g
 ```
 
 如果 CLI 已经安装，只是当前终端找不到，再手动补 PATH：
@@ -50,14 +50,14 @@ iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BA
 1. 搜索「环境变量」→「编辑系统环境变量」
 2. 点击「环境变量」
 3. 在「用户变量」中找到 `Path`，点击「编辑」
-4. 点击「新建」，输入程序所在目录
+4. 点击「新建」，输入 `npm prefix -g` 输出的目录
 5. 点击「确定」保存
 
 #### Mac/Linux 解决方法：
 
 ```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-export PATH="$HOME/.local/bin:$PATH"
+npm install -g @qvqw2233/wechat-md
+export PATH="$(npm prefix -g)/bin:$PATH"
 md2wechat version --json
 ```
 
@@ -173,9 +173,9 @@ md2wechat convert /Users/你的名字/Documents/文章.md
 - 它不是最终 HTML 成品
 - 它也不是靠 `api.image_key` 去完成正文排版
 
-**解决方法 A**：使用 API 模式（更简单）
+**解决方法 A**：使用默认本地模式（更简单）
 ```bash
-md2wechat convert 文章.md --mode api
+md2wechat convert 文章.md --mode local
 ```
 
 **解决方法 B**：先确认你是不是把 AI 模式当成了最终排版
@@ -189,7 +189,7 @@ md2wechat convert 文章.md --mode ai --json
 如果你真正想要的是“直接拿到可发 HTML”，优先改回：
 
 ```bash
-md2wechat convert 文章.md --mode api
+md2wechat convert 文章.md --mode local
 ```
 
 ---
@@ -326,7 +326,7 @@ md2wechat config show --format json
 
 1. 查看 [常见问题](FAQ.md)
 2. 查看 [使用教程](USAGE.md)
-3. 提交 Issue：https://github.com/geekjourneyx/md2wechat-skill/issues
+3. 提交 Issue：https://github.com/LLP2333/md2wechat-skill/issues
 
 提交问题时，请附上：
 - 你的操作系统（Windows 10 / macOS 13 / Linux）

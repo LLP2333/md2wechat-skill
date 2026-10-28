@@ -45,8 +45,8 @@ func TestDoctorJSONLocalModeIsReadyWithoutAPIKey(t *testing.T) {
 		t.Fatalf("unexpected readiness: %#v", readiness)
 	}
 	check := findDoctorCheck(t, data, "api.config")
-	if check["status"] != "warn" || check["blocking"] != false {
-		t.Fatalf("missing API key must not block local mode: %#v", check)
+	if check["status"] != "pass" || check["blocking"] != false {
+		t.Fatalf("local mode must not ask for an API key: %#v", check)
 	}
 }
 

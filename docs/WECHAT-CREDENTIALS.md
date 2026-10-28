@@ -152,7 +152,7 @@ wechat:
 md2wechat convert article.md --draft --cover cover.jpg --wechat-account client-a
 ```
 
-命名账号只是本地配置，执行微信副作用不需要 `MD2WECHAT_API_KEY`；本地查看命令不联网：
+命名账号只是本地配置；本地查看命令不联网：
 
 ```bash
 md2wechat config wechat-accounts --json
@@ -282,33 +282,26 @@ curl ipinfo.io/ip
 - 固定一台有公网 IP 的服务器
 - 或固定出口网关
 
-### 4. 使用高级版 API 固定出口
+### 4. 使用固定出口代理
 
-如果你不能直接在运行 `md2wechat` 的机器上获得固定公网 IP，可以使用高级版 API 服务的微信固定出口能力。它提供稳定的微信接口出口 IP，解决动态 IP 导致微信后台白名单反复更新的问题。
-
-开通后，你会拿到两项信息：
-
-- 完整的 `proxy_url`
-- 需要填写到微信后台 `IP 白名单` 的固定出口 IP
+如果你不能直接在运行 `md2wechat` 的机器上获得固定公网 IP，可以准备一台有固定公网 IP 的 HTTP/HTTPS 前向代理，只让微信接口请求走这台代理。
 
 配置文件写法：
 
 ```yaml
 wechat:
-  proxy_url: "https://wechat-egress-url-provided-by-md2wechat.example"
+  proxy_url: "http://user:pass@your-proxy.example.com:3128"
 ```
 
 也可以用环境变量临时覆盖：
 
 ```bash
-export WECHAT_PROXY_URL="https://wechat-egress-url-provided-by-md2wechat.example"
+export WECHAT_PROXY_URL="http://user:pass@your-proxy.example.com:3128"
 ```
 
 `config show --format json` 中对应字段是 `wechat_proxy_url`；默认会隐藏代理密码。
 
-这个代理只影响微信上传、建草稿和图片消息发送，不影响 API 排版、图片生成 provider、主题/提示词发现或普通转换。启用代理模式后，执行 `upload_image`、`convert --draft`、`convert --upload` 或 `create_image_post` 前需要有效的 `MD2WECHAT_API_KEY`。
-
-微信后台 `IP 白名单` 应填写高级版 API 服务提供的固定出口 IP。不要自行拼接代理主机、端口或部署形态；以服务侧提供的完整 URL 为准。需要开通固定出口能力或企业私有化方案时，请联系作者进行 `API咨询`。`HTTPS_PROXY` 只能作为全局代理兜底背景，优先使用 `wechat.proxy_url` / `WECHAT_PROXY_URL`，避免把非微信流量一起代理。
+这个代理只影响微信上传、建草稿和图片消息发送，不影响排版、图片生成 provider、主题/提示词发现或普通转换，也不需要任何额外的 API Key。微信后台 `IP 白名单` 填这台代理的出口 IP。`HTTPS_PROXY` 会把所有流量一起代理，优先使用 `wechat.proxy_url` / `WECHAT_PROXY_URL`。
 
 ### 5. 重置 AppSecret 后忘了更新配置
 
@@ -383,7 +376,7 @@ md2wechat config show --format json
 重点看：
 
 - `config_file`
-- 当前 `md2wechat_base_url`
+- 当前 `wechat_proxy_url`
 - 当前图片 provider
 
 ---

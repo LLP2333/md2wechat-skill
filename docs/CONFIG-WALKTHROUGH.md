@@ -13,12 +13,12 @@
 | 目标 | 需要配置 |
 |------|----------|
 | 只把 Markdown 转 HTML | 不需要（默认本地模式） |
-| 使用高级排版模块 | 不需要（默认本地模式）；改用远程 API 时才需要 `api.md2wechat_key` |
+| 使用高级排版模块 | 不需要（默认本地模式） |
 | 上传图片到微信 | `wechat.appid` / `wechat.secret` |
 | 创建微信草稿 | `wechat.appid` / `wechat.secret`，草稿封面 |
-| 管理多个公众号 | `wechat.accounts`（不需要 `MD2WECHAT_API_KEY`） |
+| 管理多个公众号 | `wechat.accounts` |
 
-本地只读命令不会联网验证 API key：
+以下本地只读命令不联网：
 
 ```bash
 md2wechat config show --format json
@@ -57,8 +57,6 @@ md2wechat config show --format json
 config_file
 wechat_appid
 wechat_account
-md2wechat_api_key
-md2wechat_base_url
 default_convert_mode
 image_provider
 image_api_base
@@ -70,8 +68,6 @@ image_api_base
 |---------------|--------------|
 | `wechat_appid` | `wechat.appid` |
 | `wechat_secret` | `wechat.secret` |
-| `md2wechat_api_key` | `api.md2wechat_key` |
-| `md2wechat_base_url` | `api.md2wechat_base_url` |
 | `image_api_base` | `api.image_base_url` |
 
 配置查找顺序：
@@ -106,7 +102,7 @@ md2wechat config init
 md2wechat config init ./md2wechat.yaml
 ```
 
-不要把真实 `AppSecret`、`MD2WECHAT_API_KEY`、图片服务 key 提交到 Git。
+不要把真实 `AppSecret`、图片服务 key 提交到 Git。
 
 ---
 
@@ -143,7 +139,6 @@ md2wechat doctor --json
 
 - `config validate` 只验证配置能加载和解析。
 - `doctor` 是本地只读体检，不做 live auth、不上传图片、不创建草稿。
-- 单公众号和多公众号配置都不需要 `MD2WECHAT_API_KEY`。
 
 ---
 
@@ -178,7 +173,6 @@ md2wechat config wechat-accounts --json
 这个命令只读取本地配置：
 
 - 不调用 `/api/auth/validate`
-- 不要求 `MD2WECHAT_API_KEY`
 - 不输出 `secret`
 
 ---
@@ -215,20 +209,7 @@ md2wechat convert article.md --draft --cover cover.jpg
 
 ---
 
-## 第七步：API key 边界
-
-`api.md2wechat_key` / `MD2WECHAT_API_KEY` 只有一个用途：`--mode api`（或 `api.convert_mode: api`）时调用远程 md2wechat.cn 排版服务。
-
-以下场景都不需要它：
-
-- 默认本地模式的 `inspect` / `preview` / `convert`，包括高级排版模块
-- 命名账号（`wechat.accounts`）执行上传、生成并上传图片、建草稿、`create_image_post`
-- 配置了 `wechat.proxy_url` 的微信副作用
-- `config show`、`config validate`、`doctor`、`config wechat-accounts`
-
----
-
-## 第八步：执行前检查文章
+## 第七步：执行前检查文章
 
 创建草稿前，先检查单篇文章 readiness：
 
@@ -247,7 +228,6 @@ data.readiness.blockers
 
 | blocker | 含义 |
 |---------|------|
-| `MISSING_API_KEY` | API 模式缺少 `MD2WECHAT_API_KEY` |
 | `MISSING_COVER` | 草稿模式缺少 `--cover` 或 `--cover-media-id` |
 | `LOCAL_IMAGE_MISSING` | 本地图片路径不存在 |
 
@@ -255,7 +235,7 @@ data.readiness.blockers
 
 ---
 
-## 第九步：常用命令
+## 第八步：常用命令
 
 基础配置：
 
@@ -292,14 +272,13 @@ md2wechat generate_image "封面图提示词"
 
 ---
 
-## 第十步：常见错误
+## 第九步：常见错误
 
 | 错误码 | 常见原因 | 处理方式 |
 |--------|----------|----------|
 | `WECHAT_ACCOUNT_NOT_FOUND` | 传了不存在的 `--wechat-account` 或 `WECHAT_ACCOUNT` | 运行 `md2wechat config wechat-accounts --json` 查看账号名 |
 | `WECHAT_ACCOUNT_AMBIGUOUS` | 多个命名账号但没有默认选择 | 设置 `wechat.default_account`，或传 `--wechat-account` |
 | `WECHAT_ACCOUNT_INVALID` | 账号名格式不合法 | 改成小写字母、数字、`_`、`-` |
-| `MD2WECHAT_API_KEY is required for API mode` | 使用了 `--mode api` 但没配 key | 改用默认本地模式 `--mode local`，或配置 `api.md2wechat_key` |
 | `ip not in whitelist` | 微信后台没有放行当前机器公网 IP | 按 [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md) 配置白名单 |
 
 ---

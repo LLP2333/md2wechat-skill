@@ -15,18 +15,17 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.26.1+-00ADD8?logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-Source%20Available-orange)](LICENSE)
-[![GitHub Release](https://img.shields.io/badge/download-latest-green)](https://github.com/geekjourneyx/md2wechat-skill/releases)
+[![npm](https://img.shields.io/npm/v/@qvqw2233/wechat-md)](https://www.npmjs.com/package/@qvqw2233/wechat-md)
 [![Agent Ready](https://img.shields.io/badge/Agent-Ready-00b0aa)](#agent-工作流)
-[![API](https://img.shields.io/badge/API-Professional-blue)](#专业-api)
 
-[排版效果](#排版效果) · [快速开始](#快速开始) · [专业 API](#专业-api) · **[联系我 / 获取 API Key](#联系我)** · [文档](#文档)
+[排版效果](#排版效果) · [快速开始](#快速开始) · [转换模式](#转换模式) · [文档](#文档)
 
 </div>
 
-接入有疑问？关注公众号「**极客杰尼**」，发消息「**API咨询**」；也可以直接发邮件到 [skrphper@gmail.com](mailto:skrphper@gmail.com)。[查看联系方式与二维码](#联系我)
+本仓库是 [geekjourneyx/md2wechat-skill](https://github.com/geekjourneyx/md2wechat-skill) 的社区版：默认在本机免费完成排版，不需要 API Key，只通过 npm 安装。与原作者无关联，问题请在 [Issues](https://github.com/LLP2333/md2wechat-skill/issues) 反馈。
 
 > [!TIP]
-> **v3.9.0 本地免费排版：默认 `--mode local` 在本机渲染 48 个主题和全部高级排版模块（83 个推荐场景、59 个推荐语法），不需要 API Key。** 本社区版通过 `npm install -g @qvqw2233/wechat-md` 安装；互动模块在本地模式下完整静态展示，显式 `first-layer` 仅在 API 模式为点击候选，微信内效果仍待验证。[布局指南](docs/LAYOUT.md) · [版本化安装](docs/INSTALL.md)
+> **v3.9.1 本地免费排版：默认 `--mode local` 在本机渲染 48 个主题和全部高级排版模块（83 个推荐场景、59 个推荐语法），不需要 API Key。** 通过 `npm install -g @qvqw2233/wechat-md` 安装，CLI 和两套 skill 都在 npm 包里；互动模块完整静态展示，微信内效果仍待验证。[布局指南](docs/LAYOUT.md) · [版本化安装](docs/INSTALL.md)
 
 ---
 
@@ -44,7 +43,7 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 | 定向产品写作（v3.7.0） | 组合目标搜索产品、文章平台、体裁与作者语气，也可准备分平台百科词条草稿；[使用说明](docs/WRITING.md) |
 | 多平台草稿 | 本地准备正文，宿主复用已登录浏览器，按内置步骤写入知乎、CSDN、头条、腾讯云开发者社区草稿 |
 | 多账号发布 | 命名公众号账号，本地只读发现，不输出 Secret |
-| 微信白名单 | 高级 API 服务可提供微信接口固定出口能力 |
+| 微信白名单 | `wechat.proxy_url` 可让微信接口请求走你自己的固定出口代理 |
 
 ---
 
@@ -56,7 +55,7 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 <img src="assets/theme-showcase/theme-comparison-showcase.webp" alt="同一篇 Markdown 文章在不同主题下的排版示例" width="720" />
 </p>
 
-图中内容为排版示例；专业主题与高级模块的服务范围见[专业 API](#专业-api)。
+图中内容为排版示例，来自原项目；本地模式的配色和模块样式由本仓库实现，效果相近但不完全一致。
 
 <details>
 <summary>查看更多主题与模块样稿</summary>
@@ -73,14 +72,14 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 
 </details>
 
-[查看完整主题与样稿](https://www.md2wechat.cn/theme-gallery?utm_source=github&utm_medium=readme&utm_campaign=showcase) · [高级排版教程](docs/LAYOUT.md)
+[高级排版教程](docs/LAYOUT.md)
 
 ---
 
 ## 快速开始
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.0
+npm install -g @qvqw2233/wechat-md@3.9.1
 md2wechat version --json
 md2wechat config init --json
 md2wechat config validate --json
@@ -103,7 +102,7 @@ md2wechat convert article.md --draft --cover cover.jpg
 
 如果使用可选的 `--wechat-account`，必须在 `inspect` 和 `convert` 两条命令中传入同一个账号名。
 
-另有两种可选模式：`--mode api` 调用远程 md2wechat.cn 排版服务（需要 `MD2WECHAT_API_KEY`）；`--mode ai` 生成交给宿主 Agent / 外部 LLM 继续处理的 prompt，不会直接返回最终 HTML，见 [AI 模式使用步骤](docs/QUICKSTART.md#5-使用-ai-模式)。
+需要完全由大模型自定义风格时，可以用 `--mode ai`：它生成交给宿主 Agent / 外部 LLM 继续处理的 prompt，不会直接返回最终 HTML，见 [AI 模式使用步骤](docs/QUICKSTART.md#5-使用-ai-模式)。
 
 v3.6.0 新增跨平台草稿流程：先准备正文，再由宿主 Agent 按内置步骤操作已登录的浏览器。已安装版本先用 `capabilities --json` 确认支持：
 
@@ -114,7 +113,7 @@ md2wechat skills read md2wechat references/sync/workflow.md --json
 
 准备结果是等待宿主执行，不代表草稿已创建。平台步骤、图片处理、头条标题限制和恢复方式见 [多平台草稿](docs/SYNC.md)。
 
-安装方式、微信凭证和 IP 白名单配置见：
+安装、微信凭证和 IP 白名单配置见：
 
 - [安装指南](docs/INSTALL.md)
 - [微信凭证与 IP 白名单指南](docs/WECHAT-CREDENTIALS.md)
@@ -124,49 +123,15 @@ md2wechat skills read md2wechat references/sync/workflow.md --json
 
 ## 转换模式
 
-| 能力 | 本地模式（默认） | API 模式（可选） | AI 模式 |
-|---|---|---|---|
-| 输出方式 | 本机直接生成微信 HTML | 远程服务返回微信 HTML | 生成 prompt，由外部 LLM 继续处理 |
-| 凭证 | 不需要 | `MD2WECHAT_API_KEY` | 不需要 |
-| 主题 | 48 个 `type: api` 主题 | 48 个 `type: api` 主题 | 3 个基础 AI 主题 |
-| 高级排版模块 | 渲染全部 `:::module`（交互模块输出为静态内容） | 远程 renderer 解析 | 不解析 |
-| 网络 | 排版不联网 | 每次转换调用 md2wechat.cn | 不联网 |
+| 能力 | 本地模式（默认） | AI 模式 |
+|---|---|---|
+| 输出方式 | 本机直接生成微信 HTML | 生成 prompt，由外部 LLM 继续处理 |
+| 凭证 | 不需要 | 不需要 |
+| 主题 | 48 个主题 | 3 个基础 AI 主题 |
+| 高级排版模块 | 渲染全部 `:::module`（交互模块输出为静态内容） | 不解析 |
+| 网络 | 排版不联网 | 不联网 |
 
-本地模式的主题配色和模块样式由本仓库实现，和远程 API 的视觉效果不完全一致。命名公众号账号和 `wechat.proxy_url` 都是本地配置，上传和建草稿不需要 API Key。
-
-### 专业 API（可选）
-
-API 模式是作者提供的付费远程排版服务，适合需要和官方视觉完全一致的场景。服务范围与价格以官网及开通时确认的信息为准。
-
-[查看服务范围与价格](https://www.md2wechat.cn/pricing?utm_source=github&utm_medium=readme&utm_campaign=api) · **[联系我 / 获取 API Key](#联系我)** · [接口文档](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api)
-
-
-专业能力包括：
-
-- 48 个微信渲染精调主题：[主题画廊](https://www.md2wechat.cn/theme-gallery?utm_source=github&utm_medium=readme&utm_campaign=showcase)
-- 83 个主推高级排版场景条目，对应 59 个主推 `:::` 语法名；本次扩展含 12 种品牌图形符号及受位置约束的动效：[docs/LAYOUT.md](docs/LAYOUT.md)
-- 2 个兼容模块只用于旧稿迁移；加上 4 个基础增强能力，共计 65 项渲染层语法能力
-- 多公众号账号：[docs/CONFIG.md](docs/CONFIG.md)
-- 微信接口固定出口：[docs/WECHAT-CREDENTIALS.md](docs/WECHAT-CREDENTIALS.md)
-- 发布前 readiness 检查：[docs/DISCOVERY.md](docs/DISCOVERY.md)
-
----
-
-## 联系我
-
-我是极客杰尼，md2wechat 的维护者。API 开通、安装配置、团队接入或商业授权，都可以通过下面的方式联系我。
-
-- **微信：** 扫码或搜索公众号「**极客杰尼**」，关注后发消息「**API咨询**」，说明你的使用需求。
-- **邮箱：** [skrphper@gmail.com](mailto:skrphper@gmail.com)
-- **接入咨询：** [整理接入需求](https://www.md2wechat.cn/contact?utm_source=github&utm_medium=readme&utm_campaign=contact)（在页面生成摘要后，通过微信或邮件联系我）
-
-<p align="center">
-<img src="assets/wechat.png" alt="公众号：极客杰尼" width="160" />
-</p>
-
-咨询时可以告诉我：你用哪个 Agent / 系统、希望完成什么任务，以及卡在哪一步。
-
----
+本地模式覆盖 83 个推荐场景条目、59 个推荐 `:::` 语法名、2 个兼容模块和 4 个基础增强能力，共 65 项渲染层语法能力。命名公众号账号和 `wechat.proxy_url` 都是本地配置，上传和建草稿不需要 API Key。
 
 ## Agent 工作流
 
@@ -186,14 +151,14 @@ md2wechat skills read md2wechat --json
 
 按任务选择 discovery：用 `capabilities` 获取聚合路由事实，用资源的 `list` 做选择，用 `show` 查看单个资源的完整定义，仅在该资源支持时使用 `render`。JSON stdout 是单行紧凑对象并以换行结束；人类阅读时可在命令后加 `| jq`，不要要求 CLI 改成缩进输出。
 
-文章命令边界固定为：`inspect` 返回结构化 metadata、checks、readiness targets 和 blockers；`preview` 只把成功的 API converter 最终 HTML 原样写入文件；`convert` 执行转换，并且只在用户明确请求时执行 upload/draft 副作用。AI preview 返回 `PREVIEW_ACTION_REQUIRED` 且不创建输出文件，需要 readiness 时使用 `inspect --json`。
+文章命令边界固定为：`inspect` 返回结构化 metadata、checks、readiness targets 和 blockers；`preview` 只把成功的 converter 最终 HTML 原样写入文件；`convert` 执行转换，并且只在用户明确请求时执行 upload/draft 副作用。AI preview 返回 `PREVIEW_ACTION_REQUIRED` 且不创建输出文件，需要 readiness 时使用 `inspect --json`。
 
 这些命令适合 Claude Code、Codex、WorkBuddy、Kimi Work、Hermes Agent、OpenClaw 以及其他能调用本地 CLI 的 Agent 使用。
 
 Agent 可以据此判断：
 
 - 当前 CLI 支持哪些命令
-- API、草稿、上传是否具备执行条件
+- 排版、草稿、上传是否具备执行条件
 - 某篇文章能不能发草稿
 - 当前主题和排版模块是否可用
 - 标题建议是否应交给宿主 Agent / 外部模型完成
@@ -244,7 +209,7 @@ md2wechat generate_infographic --article article.md --plan --json
 
 ## 高级排版
 
-本地模式（默认）和 API 模式都支持 `:::module` 语法，用 Markdown 写结构化公众号排版。
+默认的本地模式支持 `:::module` 语法，用 Markdown 写结构化公众号排版。
 
 ```markdown
 :::hero
@@ -255,7 +220,7 @@ subtitle: 为什么读者愿意继续读下去
 
 :::callout
 type: info
-body: 高级排版模块在本地模式和 API 模式渲染，AI 模式不解析。
+body: 高级排版模块在本地模式渲染，AI 模式不解析。
 :::
 ```
 
@@ -267,7 +232,7 @@ md2wechat layout show hero --json
 md2wechat layout validate --file article.md --json
 ```
 
-本地 `layout validate` 只验证语法，不能证明远端 renderer 已部署；需要通过 API `preview` 或 `convert` 验证实际渲染。
+`layout validate` 只验证语法；实际渲染效果用 `preview` 或 `convert` 查看。
 
 完整教程见 [docs/LAYOUT.md](docs/LAYOUT.md)。
 
@@ -281,7 +246,7 @@ md2wechat layout validate --file article.md --json
 |---|---|
 | `inspect` | 返回结构化 metadata、checks、readiness targets 和 blockers |
 | `advise` | 为已有文章推荐可选的最小增强动作 |
-| `preview` | 只写入成功 API 转换的最终 HTML；失败或 AI handoff 不新建或覆盖 |
+| `preview` | 只写入成功转换的最终 HTML；失败或 AI handoff 不新建或覆盖 |
 | `convert` | 转换 Markdown，并按显式请求执行 upload/draft 副作用 |
 | `write` | 从想法生成文章 |
 | `humanize` | 重写 AI 文章，支持 `authentic` 强度 |
@@ -317,17 +282,15 @@ md2wechat layout validate --file article.md --json
 
 ## 许可与商业使用
 
-本项目采用 Source Available License。个人使用、学习、评估、非营利使用免费。商业使用、SaaS、客户交付、白标、再分发和训练数据用途需要商业授权。
-
-专业 API：[查看服务范围与价格](https://www.md2wechat.cn/pricing?utm_source=github&utm_medium=readme&utm_campaign=api) · [联系我获取 API Key](#联系我)。购买 API 服务不自动包含商业授权；商业授权（SaaS、客户交付、白标、再分发和训练数据）请[联系我](#联系我)。
+本项目沿用原项目的 Source Available License（基于 BUSL-1.1），版权归原作者 geekjourneyx 所有。个人使用、学习、评估、非营利使用免费；商业使用、SaaS、客户交付、白标和训练数据用途需要原作者的商业授权，联系方式见 [LICENSE](LICENSE)。
 
 ---
 
 <div align="center">
 
-[文档](docs) · [Issues](https://github.com/geekjourneyx/md2wechat-skill/issues) · **[联系我](#联系我)**
+[文档](docs) · [Issues](https://github.com/LLP2333/md2wechat-skill/issues)
 
-Made by [geekjourneyx](https://jieni.ai)
+基于 [geekjourneyx/md2wechat-skill](https://github.com/geekjourneyx/md2wechat-skill) 的社区版
 
 </div>
 

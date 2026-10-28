@@ -207,23 +207,19 @@ then
   fail "OpenClaw skill frontmatter contract failed"
 fi
 
-for release_doc in docs/INSTALL.md docs/OPENCLAW.md; do
-  grep -Fq "releases/download/v${version}" "$release_doc" \
-    || fail "$release_doc must point install instructions at v${version} release assets"
-  ! grep -Fq 'releases/latest/download' "$release_doc" \
-    || fail "$release_doc must not contain releases/latest/download"
-  stale_release_url="$(grep -Eo 'releases/download/v[0-9]+\.[0-9]+\.[0-9]+' "$release_doc" \
-    | grep -Fvx "releases/download/v${version}" \
-    | head -n1 || true)"
-  [[ -z "$stale_release_url" ]] \
-    || fail "$release_doc contains a stale versioned release URL: $stale_release_url"
+grep -Fq "npm install -g @qvqw2233/wechat-md@${version}" docs/INSTALL.md \
+  || fail "docs/INSTALL.md must pin the npm install command to v${version}"
+for install_doc in README.md docs/*.md; do
+  [[ "$install_doc" == "docs/SMOKE.md" ]] && continue
+  ! grep -Eq 'brew install|install\.sh|install\.ps1|go install|openclaw skills install|releases/download' "$install_doc" \
+    || fail "$install_doc must document npm as the only install path"
+  ! grep -Eq 'md2wechat\.cn|MD2WECHAT_API_KEY|API咨询' "$install_doc" \
+    || fail "$install_doc must not promote the paid remote API"
 done
 grep -q 'npm install -g @qvqw2233/wechat-md' README.md || fail "README must document the npm install path"
 grep -q 'npm install -g @qvqw2233/wechat-md' docs/INSTALL.md || fail "docs/INSTALL.md must document the npm install path"
 grep -q 'npx cnpm sync @qvqw2233/wechat-md' docs/INSTALL.md || fail "docs/INSTALL.md must document the post-publish npmmirror sync step"
 grep -q 'npx cnpm sync @qvqw2233/wechat-md' docs/FAQ.md || fail "docs/FAQ.md must document the npmmirror sync recovery path"
-! grep -q 'brew install geekjourneyx/tap/md2wechat' README.md || fail "README must keep Homebrew install details in docs/INSTALL.md, not the primary quickstart"
-grep -q 'brew install geekjourneyx/tap/md2wechat' docs/INSTALL.md || fail "docs/INSTALL.md must document the tap install path"
 ! grep -q 'raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install.sh' README.md || fail "README must not point the md2wechat installer at main"
 ! grep -q 'raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install.ps1' README.md || fail "README must not point the md2wechat installer at main"
 ! grep -q 'raw.githubusercontent.com/geekjourneyx/md2wechat-skill/main/scripts/install.sh' docs/INSTALL.md || fail "docs/INSTALL.md must not point the md2wechat installer at main"
@@ -252,7 +248,7 @@ grep -q 'md2wechat skills read md2wechat --json' docs/OBSIDIAN.md || fail "docs/
 grep -q 'md2wechat skills read md2wechat --json' docs/OPENCLAW.md || fail "docs/OPENCLAW.md must document embedded SOP verification"
 grep -q 'skills read md2wechat --json' scripts/install-openclaw.ps1 || fail "install-openclaw.ps1 must print embedded SOP verification"
 grep -q '`inspect` is the source-of-truth command' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must describe inspect as the source-of-truth command"
-grep -q '`preview` writes only byte-identical final converter HTML (local or API) from a successful converter result' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must describe exact preview behavior"
+grep -q '`preview` writes only byte-identical final converter HTML from a successful converter result' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must describe exact preview behavior"
 grep -q 'this invocation does not create or overwrite preview HTML' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must describe action-required and failed preview no-write behavior"
 grep -q 'PREVIEW_ACTION_REQUIRED' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must describe PREVIEW_ACTION_REQUIRED"
 grep -q 'PREVIEW_FAILED' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must describe PREVIEW_FAILED"
@@ -260,12 +256,12 @@ grep -q 'PREVIEW_ACTION_REQUIRED.*empty `data.output_file`' skills/md2wechat/SKI
 grep -q 'Any pre-existing explicit output path is stale' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must reject stale explicit preview output"
 grep -q 'WeChat upload, article draft creation, and `create_image_post` require WeChat credentials' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must require credentials for every explicit WeChat side effect"
 grep -q 'free of any global WeChat publishing credential requirement' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must distinguish publishing credentials from API-mode credentials"
-grep -q 'API-mode preview and conversion require a valid `MD2WECHAT_API_KEY`' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must retain API-mode credential requirements"
+grep -q 'never ask the user for `MD2WECHAT_API_KEY`' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must forbid asking for the paid API key"
 grep -q 'Named WeChat accounts and `wechat.proxy_url` are local configuration' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must state named-account and proxy publishing need no API key"
 grep -q 'default to local mode' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must document local mode as the default"
 grep -q 'md2wechat skills read md2wechat --json' skills/md2wechat/SKILL.md || fail "skills/md2wechat/SKILL.md must route stale-SOP checks through skills read"
 grep -q '`inspect` is the source-of-truth command' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must describe inspect as the source-of-truth command"
-grep -q '`preview` writes only byte-identical final converter HTML (local or API) from a successful converter result' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must describe exact preview behavior"
+grep -q '`preview` writes only byte-identical final converter HTML from a successful converter result' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must describe exact preview behavior"
 grep -q 'this invocation does not create or overwrite preview HTML' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must describe action-required and failed preview no-write behavior"
 grep -q 'PREVIEW_ACTION_REQUIRED' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must describe PREVIEW_ACTION_REQUIRED"
 grep -q 'PREVIEW_FAILED' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must describe PREVIEW_FAILED"
@@ -273,7 +269,7 @@ grep -q 'PREVIEW_ACTION_REQUIRED.*empty `data.output_file`' platforms/openclaw/m
 grep -q 'Any pre-existing explicit output path is stale' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must reject stale explicit preview output"
 grep -q 'WeChat upload, article draft creation, and `create_image_post` require WeChat credentials' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must require credentials for every explicit WeChat side effect"
 grep -q 'free of any global WeChat publishing credential requirement' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must distinguish publishing credentials from API-mode credentials"
-grep -q 'API-mode preview and conversion require a valid `MD2WECHAT_API_KEY`' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must retain API-mode credential requirements"
+grep -q 'never ask the user for `MD2WECHAT_API_KEY`' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must forbid asking for the paid API key"
 grep -q 'Named WeChat accounts and `wechat.proxy_url` are local configuration' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must state named-account and proxy publishing need no API key"
 grep -q 'default to local mode' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must document local mode as the default"
 grep -q 'md2wechat skills read md2wechat --json' platforms/openclaw/md2wechat/SKILL.md || fail "OpenClaw skill must route stale-SOP checks through skills read"

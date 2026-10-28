@@ -10,7 +10,7 @@
 
 **先安装 `md2wechat` CLI，再安装 skill。**
 
-`npx skills add ...` 只安装 skill，不会替你安装 CLI。
+CLI 和 skill 都随 npm 包 `@qvqw2233/wechat-md` 一起下载；skill 需要你再复制到 `~/.claude/skills/`。
 
 ---
 
@@ -38,31 +38,11 @@
 如果你只想尽快跑通，按这个顺序做：
 
 ```bash
-brew install geekjourneyx/tap/md2wechat
+npm install -g @qvqw2233/wechat-md
 md2wechat version --json
 md2wechat skills read md2wechat --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-md2wechat capabilities --json
-```
-
-如果你已经有 Go 环境，再改成：
-
-```bash
-git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-md2wechat version --json
-md2wechat skills read md2wechat --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-md2wechat capabilities --json
-```
-
-如果以上都不适合，再改成：
-
-```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-export PATH="$HOME/.local/bin:$PATH"
-md2wechat version --json
-md2wechat skills read md2wechat --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+mkdir -p ~/.claude/skills
+cp -r "$(npm root -g)/@qvqw2233/wechat-md/skills/md2wechat" ~/.claude/skills/
 md2wechat capabilities --json
 ```
 
@@ -89,33 +69,13 @@ md2wechat capabilities --json
 
 ### 第二步：安装 `md2wechat` CLI
 
-mac 用户优先：
-
 ```bash
-brew install geekjourneyx/tap/md2wechat
+npm install -g @qvqw2233/wechat-md
 ```
 
-如果你已经有 Go 环境，也可以：
+需要 Node.js 18 或更高版本。安装后先验证：
 
 ```bash
-git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-```
-
-如果以上都不适合，再用固定版本安装脚本：
-
-```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-```
-
-默认安装位置：
-
-- macOS / Linux：`~/.local/bin/md2wechat`
-- Windows：用户级安装目录或 `C:\Program Files\md2wechat\md2wechat.exe`
-
-安装后先验证：
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
 md2wechat version --json
 ```
 
@@ -126,10 +86,11 @@ md2wechat version --json
 ### 第三步：安装 skill
 
 ```bash
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+mkdir -p ~/.claude/skills
+cp -r "$(npm root -g)/@qvqw2233/wechat-md/skills/md2wechat" ~/.claude/skills/
 ```
 
-这一步只会安装 skill，不会安装 CLI。
+这一步只是把 npm 包里自带的 skill 复制到 Claudian 能发现的位置。
 
 Claudian 官方说明它会从这些位置发现 skill：
 
@@ -208,16 +169,10 @@ Obsidian 是图形界面应用。
 - `Environment`
 - `Custom variables`
 
-补一条：
+补一条（把路径换成终端里 `npm prefix -g` 输出的目录，后面加 `/bin`）：
 
 ```text
-PATH=/Users/你的用户名/.local/bin:原来的PATH
-```
-
-Linux 可以改成：
-
-```text
-PATH=/home/你的用户名/.local/bin:原来的PATH
+PATH=/Users/你的用户名/.npm-global/bin:原来的PATH
 ```
 
 如果你不确定自己 CLI 安装在哪，先在终端执行：
@@ -236,16 +191,13 @@ command -v md2wechat
 
 ```text
 请帮我在当前电脑上安装 md2wechat，并让 Claudian 可以在 Obsidian 里通过 /md2wechat 使用它。按这个顺序执行：
-1. 如果我是 mac 用户，先运行：brew install geekjourneyx/tap/md2wechat
-2. 如果我已经有稳定可用的 Go 环境，也可以改成：git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-3. 如果以上两种都不适合，再运行：curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-4. 如果我是通过 install.sh 安装的，再运行：export PATH="$HOME/.local/bin:$PATH"
-5. 运行：md2wechat version --json
-6. 运行：md2wechat skills read md2wechat --json
-7. 运行：npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-8. 运行：md2wechat capabilities --json
-9. 如果 Obsidian / Claudian 里还是找不到 md2wechat，请提醒我去 Claudian 的 Settings -> Environment -> Custom variables，把 PATH 补上 ~/.local/bin
-10. 最后告诉我如何在 Claudian 里输入 /md2wechat 或直接调用 md2wechat skill
+1. 运行：npm install -g @qvqw2233/wechat-md
+2. 运行：md2wechat version --json
+3. 运行：md2wechat skills read md2wechat --json
+4. 把 "$(npm root -g)/@qvqw2233/wechat-md/skills/md2wechat" 复制到 ~/.claude/skills/
+5. 运行：md2wechat capabilities --json
+6. 如果 Obsidian / Claudian 里还是找不到 md2wechat，请提醒我去 Claudian 的 Settings -> Environment -> Custom variables，把 PATH 补上 npm prefix -g 输出目录下的 bin
+7. 最后告诉我如何在 Claudian 里输入 /md2wechat 或直接调用 md2wechat skill
 如果某一步失败，请继续排查并给我下一条修复命令，不要只返回报错原文。
 ```
 
@@ -255,7 +207,7 @@ command -v md2wechat
 
 ### Q1：为什么要先装 CLI？
 
-因为 `npx skills add ...` 只装 skill。  
+因为 skill 只是给 Agent 的说明书。  
 `md2wechat` 真正执行转换、图片生成、上传草稿，还是靠本机 CLI。
 
 ### Q2：为什么我在终端里能用，Claudian 里不能用？

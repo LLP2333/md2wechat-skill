@@ -40,7 +40,7 @@ md2wechat capabilities --json
 - 当前可枚举的 theme
 - 当前可枚举的 prompt catalog
 - `data.article_advice` 是否可用、命令名、建议工具、响应 code、是否要求 JSON、是否有副作用
-- `layout` catalog 是否可用、模块数量、schema version，以及哪些模式渲染模块（本地模式和 API 模式）
+- `layout` catalog 是否可用、模块数量、schema version，以及哪些模式渲染模块（`render_modes`）
 - `skills` 是否作为当前二进制的内置 Agent SOP 入口开放
 
 示例片段：
@@ -113,9 +113,9 @@ md2wechat skills read md2wechat --json
 md2wechat doctor --json
 ```
 
-`doctor` 是本地只读诊断命令。它检查配置能否加载、默认转换模式、API key 是否存在、默认主题是否兼容当前模式、layout catalog 是否可用、WeChat 草稿凭证是否存在。
+`doctor` 是本地只读诊断命令。它检查配置能否加载、默认转换模式、默认主题是否兼容当前模式、layout catalog 是否可用、WeChat 草稿凭证是否存在。
 
-它不会调用远程 API，不会验证 live auth，不会上传图片，也不会创建草稿。JSON 输出中的 `data.live` 固定为 `false`，`data.readiness.format_api` / `data.readiness.advanced_layout` / `data.readiness.draft` 用来帮助 Agent 判断下一步能不能执行 API 转换、高级排版渲染或草稿创建。
+它不会调用远程 API，不会验证 live auth，不会上传图片，也不会创建草稿。JSON 输出中的 `data.live` 固定为 `false`，`data.readiness.format_local` / `data.readiness.advanced_layout` / `data.readiness.draft` 用来帮助 Agent 判断下一步能不能执行本地转换、高级排版渲染或草稿创建。
 
 注意：`doctor` 的 `data.readiness.*` 是本地配置可尝试性；`inspect` 的 `data.readiness.targets/blockers` 是单篇文章的执行目标状态。
 
@@ -125,7 +125,7 @@ md2wechat doctor --json
 md2wechat config wechat-accounts --json
 ```
 
-`config wechat-accounts` 是本地只读命令，用来列出配置文件中的命名公众号账号、当前解析到的账号和 `default_account`。它不调用 `/api/auth/validate`，不要求 `MD2WECHAT_API_KEY`，也不会输出 secret。
+`config wechat-accounts` 是本地只读命令，用来列出配置文件中的命名公众号账号、当前解析到的账号和 `default_account`。它不联网，也不会输出 secret。
 
 命名账号只是本地配置，任何路径都不会因为命名账号触发 API-key 校验。
 
@@ -239,7 +239,7 @@ Collection descriptor 也会出现在发现结果里。例如 `api-collection` �
 
 `convert` 和 `inspect` readiness 现在会 fail closed：
 
-- `--mode local` 和 `--mode api` 不能选择 AI 主题；
+- `--mode local` 不能选择 AI 主题；
 - `--mode ai` 不能选择 API 主题；
 - `selectable: false` 的主题不能用于转换；
 - `--mode ai --custom-prompt` 是例外路径，custom prompt 本身就是排版提示词来源，不要求主题匹配；检查这个路径时，`inspect` 也要带同样的 `--custom-prompt`。

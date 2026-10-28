@@ -8,26 +8,11 @@
 
 ### 1. 安装
 
-推荐使用固定版本 release 资产：
-
-mac 用户优先：
-
 ```bash
-brew install geekjourneyx/tap/md2wechat
+npm install -g @qvqw2233/wechat-md
 ```
 
-如果你不用 Homebrew，再执行：
-
-```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-```
-
-Windows PowerShell：
-
-```powershell
-$env:MD2WECHAT_RELEASE_BASE_URL = "https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0"
-iex ((New-Object System.Net.WebClient).DownloadString("$env:MD2WECHAT_RELEASE_BASE_URL/install.ps1"))
-```
+需要 Node 18 或更高版本。
 
 安装后验证：
 
@@ -56,21 +41,8 @@ md2wechat config init
 
 - `wechat.appid`
 - `wechat.secret`
-- `api.md2wechat_key`
 
-如果你需要切换 API 域名，在这个文件里修改：
-
-```yaml
-api:
-  md2wechat_base_url: "https://www.md2wechat.cn"
-```
-
-备用域名可改为：
-
-```yaml
-api:
-  md2wechat_base_url: "https://md2wechat.app"
-```
+预览和转换默认走本地模式，不需要任何 API Key。
 
 默认主题和默认写作风格已经随二进制内置，不需要额外拷贝 `themes/` 或 `writers/` 目录。
 如果你要自定义主题，同名覆盖优先级是用户目录 `~/.config/md2wechat/themes` > 项目目录 `./themes` > `MD2WECHAT_THEMES_DIR` > 内置主题。writer style 的顺序单独见 [配置参考](CONFIG.md)。
@@ -146,7 +118,7 @@ md2wechat create_image_post --title "Weekend Trip" --images a.jpg,b.jpg --dry-ru
 
 1. [安装指南](INSTALL.md)
 2. [完整使用说明](USAGE.md)
-3. [高级排版模块教程](LAYOUT.md) ← 本地模式（默认）和 API 模式可用
+3. [高级排版模块教程](LAYOUT.md) ← 默认本地模式可用
 4. [故障排查](TROUBLESHOOTING.md)
 5. [架构说明](ARCHITECTURE.md)
 

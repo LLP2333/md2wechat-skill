@@ -109,6 +109,14 @@ func (r *Report) checkMode(cfg *config.Config) bool {
 }
 
 func (r *Report) checkAPIConfig(cfg *config.Config, modeOK bool) bool {
+	if modeOK && strings.TrimSpace(cfg.DefaultConvertMode) != "api" {
+		r.add(Check{
+			ID:      "api.config",
+			Status:  StatusPass,
+			Message: fmt.Sprintf("%s mode needs no API key", strings.TrimSpace(cfg.DefaultConvertMode)),
+		})
+		return false
+	}
 	missing := []string{}
 	if strings.TrimSpace(cfg.MD2WechatAPIKey) == "" {
 		missing = append(missing, "MD2WECHAT_API_KEY")

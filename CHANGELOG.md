@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.9.1] - 2026-10-28
+
+### Added
+- **Skills in the npm package**: `@qvqw2233/wechat-md` now ships `skills/md2wechat` and `platforms/openclaw/md2wechat`, so CLI and skills install from one place
+
+### Changed
+- **Install docs**: npm is the only documented install path; skills are copied from the installed npm package
+- **Docs and skills**: removed the remote paid API mode, upstream pricing, contact and API-consulting promotion; `wechat.proxy_url` is documented as your own fixed-egress proxy
+- **doctor**: `api.config` passes in local and AI mode instead of warning about a missing API key
+- **SMOKE.md**: replaced the upstream API conformance log with the community release smoke checklist
+
+### Removed
+- Homebrew tap, `install.sh`, `install.ps1`, Go install, prebuilt-binary and ClawHub install instructions pointing at the upstream project
+
+### Technical Details
+- **Modified Files**: README, docs, both `SKILL.md` files, `package.json`, `internal/doctor/doctor.go`, `scripts/release-check.sh`
+
+### Migration Guide
+No migration required.
+
 ## [3.9.0] - 2026-10-28
 
 ### Added
@@ -1047,6 +1067,7 @@ No migration required. The write command is a new feature and doesn't affect exi
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [3.9.1] | 2026-10-28 | npm-only install, skills shipped in npm, paid API docs removed |
 | [3.9.0] | 2026-10-28 | Free local renderer as default convert mode |
 | [1.9.0] | 2025-02-06 | Image Post (小绿书/newspic) support |
 | [1.8.0] | 2025-02-05 | OpenClaw support, directory simplification, run.sh refactoring |

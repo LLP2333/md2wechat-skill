@@ -16,37 +16,26 @@
 
 如果安装或登录界面与这里不同，可分别查看 [Windows 官方安装指南](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Installation-Win-Guide) 与 [Mac 官方安装指南](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Installation-Mac-Guide)。不要从非官网镜像下载客户端。
 
-## 二、安装 md2wechat Skill
-
-按当前官方文档，常见入口是：
-
-1. 打开左侧“技能”。
-2. 点击“添加技能”，选择“查找技能”或进入“技能市场”。
-3. 搜索 `md2wechat`。
-4. 核对项目来源是 `geekjourneyx/md2wechat-skill`，再点击安装。
-5. 在“已安装”中确认 `md2wechat` 已启用。
-
-WorkBuddy 正在持续更新 SkillHub 和插件界面，所以不同版本可能出现这些差异：
-
-- “技能”可能写成 `Skills`，“技能市场”可能写成 `SkillHub`。
-- 较旧版本可能只有“插件”入口，或把 Skill 放在插件市场里。
-- “添加技能”下可能显示“查找技能”“上传技能”或直接显示搜索框。
-
-如果找不到上述入口，先更新 WorkBuddy，再按 [WorkBuddy 官方技能说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market) 操作。也可以打开 [腾讯 SkillHub](https://skillhub.tencent.com/)，搜索 `md2wechat` 后把页面提供的安装指令粘贴到 WorkBuddy 对话框。安装第三方 Skill 前始终核对来源和权限。
-
-> 只装 Skill 还不能运行 `md2wechat`。下一节还要安装 CLI。
-
-## 三、用 npm 安装 CLI
+## 二、用 npm 安装 CLI 和 Skill
 
 NPM 安装要求 Node.js 18 或更高。可以把下面这段话直接发给 WorkBuddy：
 
 ```text
 请在当前电脑检查 node --version 和 npm --version。Node.js 版本不低于 18 时，执行：
 npm install -g @qvqw2233/wechat-md
-然后执行 md2wechat version --json 验证安装。不要初始化或修改任何配置，也不要上传图片、创建草稿或发布内容。请把每条命令的结果告诉我。
+然后执行 md2wechat version --json 验证安装，再执行 npm root -g 告诉我全局包目录。不要初始化或修改任何配置，也不要上传图片、创建草稿或发布内容。请把每条命令的结果告诉我。
 ```
 
-如果 `md2wechat version --json` 提示找不到命令，关闭并重新启动 WorkBuddy，让它重新读取 `PATH`，然后再试。更多平台和安装方式见 [安装指南](INSTALL.md)。
+如果 `md2wechat version --json` 提示找不到命令，关闭并重新启动 WorkBuddy，让它重新读取 `PATH`，然后再试。更多说明见 [安装指南](INSTALL.md)。
+
+Skill 文件随 npm 包一起下载，位于 `npm root -g` 输出目录下的 `@qvqw2233/wechat-md/skills/md2wechat`。在 WorkBuddy 中：
+
+1. 打开左侧“技能”。
+2. 点击“添加技能”，选择“上传技能”。
+3. 选择上面的 `skills/md2wechat` 目录。
+4. 在“已安装”中确认 `md2wechat` 已启用。
+
+WorkBuddy 正在持续更新界面，“技能”可能写成 `Skills`，“上传技能”的位置也可能不同。找不到入口时先更新 WorkBuddy，再按 [WorkBuddy 官方技能说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market) 操作。
 
 ### 初始化配置不会覆盖旧文件
 
@@ -72,19 +61,18 @@ md2wechat config init --json
 
 `config validate` 只证明配置可以加载和解析，`doctor` 也是本地只读体检；它们不会验证远端密钥、微信 IP 白名单或单篇文章是否可创建草稿。
 
-## 四、认识三类凭证
+## 三、认识两类凭证
 
 | 凭证类别 | 什么时候需要 | 配置文件字段 | 常用环境变量 |
 |----------|--------------|--------------|----------------|
-| md2wechat API Key | API 模式预览、转换和高级排版 | `api.md2wechat_key` | `MD2WECHAT_API_KEY` |
 | 微信公众号凭证 | 上传微信素材、创建微信草稿或图片消息 | `wechat.appid`、`wechat.secret` | `WECHAT_APPID`、`WECHAT_SECRET` |
 | 图片 provider 凭证 | 让 CLI 直接请求 Seedream 等图片服务 | `api.image_key`，并配套 provider/base/model | `IMAGE_API_KEY`，并配套 `IMAGE_PROVIDER` 等 |
 
-这三类凭证不能互相替代。只把 Markdown 转为 API 模式 HTML 时，不需要微信公众号 `AppID` / `AppSecret`；创建微信草稿时需要微信凭证和封面；使用 WorkBuddy 自带的 Image Gen 工具时，也不等于已经给 CLI 配置了图片 provider。
+这两类凭证不能互相替代。只把 Markdown 转为 HTML 时，不需要任何凭证；创建微信草稿时需要微信凭证和封面；使用 WorkBuddy 自带的 Image Gen 工具时，也不等于已经给 CLI 配置了图片 provider。
 
 完整字段、优先级和多公众号说明见 [配置保姆级指南](CONFIG-WALKTHROUGH.md)。
 
-## 五、配置微信凭证和 IP 白名单
+## 四、配置微信凭证和 IP 白名单
 
 只有准备上传微信素材或创建草稿时才做这一节。
 
@@ -94,9 +82,9 @@ md2wechat config init --json
 4. 回到微信开发者平台的“开发接口管理”，把该公网 IP 加入“IP 白名单”，保存后等待几分钟。
 5. 重新运行 `md2wechat config validate --json` 和 `md2wechat doctor --json`。它们仍然只是本地检查；真正调用微信前还要对文章执行 `inspect --draft`。
 
-家庭宽带、公司网络或 VPN 的公网 IP 可能变化。固定出口、高级 API 代理、多账号和微信错误的完整处理步骤见 [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)，不要在本页自行拼接代理地址。
+家庭宽带、公司网络或 VPN 的公网 IP 可能变化。固定出口代理、多账号和微信错误的完整处理步骤见 [微信凭证与 IP 白名单指南](WECHAT-CREDENTIALS.md)，不要在本页自行拼接代理地址。
 
-## 六、可选：配置 Seedream 5.0 Pro
+## 五、可选：配置 Seedream 5.0 Pro
 
 如果你希望 `md2wechat` CLI 直接请求火山引擎生成图片，先在火山引擎控制台开通 Seedream 模型，再把最小配置写入现有配置文件：
 
@@ -119,25 +107,25 @@ md2wechat providers show volcengine --json
 
 如果 WorkBuddy 当前会话本身提供 Image Gen 工具，你也可以不配置图片 provider，改用 `generate_cover --plan --json` 让 CLI 只生成计划，再由 WorkBuddy 生成本地图片。这个流程的边界见 [Agent 图片计划模式](AGENT_IMAGE_GEN.md)。
 
-## 七、第一次转换：只生成本地 HTML
+## 六、第一次转换：只生成本地 HTML
 
-先在工作目录准备 `article.md`。第一次不要上传图片、不要创建草稿，也不要发布。API 模式需要已经配置 `MD2WECHAT_API_KEY` 或 `api.md2wechat_key`。
+先在工作目录准备 `article.md`。第一次不要上传图片、不要创建草稿，也不要发布。默认本地模式不需要任何 API Key。
 
 把下面这段话直接发给 WorkBuddy：
 
 ```text
 请在当前工作目录对 article.md 做第一次无发布转换，并严格按顺序执行：
-1. md2wechat inspect article.md --mode api --json
-2. 只有 data.readiness.targets.convert 显示可执行，且 data.readiness.blockers 没有阻断 convert 时，运行 md2wechat preview article.md --mode api --output workbuddy-preview.html --json
-3. 只有 preview 成功并返回本次输出文件时，运行 md2wechat convert article.md --mode api --output article.html --json
+1. md2wechat inspect article.md --json
+2. 只有 data.readiness.targets.convert 显示可执行，且 data.readiness.blockers 没有阻断 convert 时，运行 md2wechat preview article.md --output workbuddy-preview.html --json
+3. 只有 preview 成功并返回本次输出文件时，运行 md2wechat convert article.md --output article.html --json
 请汇报每一步的 code、status、readiness、blockers 和实际输出路径，然后停止。不要添加 --upload、--draft，不要上传图片，不要创建微信草稿，不要发布，也不要改写 article.md。
 ```
 
-这里的 `workbuddy-preview.html` 用来查看效果，`article.html` 是转换产物。`preview` 和 `convert` 会调用 md2wechat 的 API 转换服务，但不会因为这组命令而调用微信发布接口。
+这里的 `workbuddy-preview.html` 用来查看效果，`article.html` 是转换产物。`preview` 和 `convert` 在本机完成排版，不会因为这组命令而调用微信发布接口。
 
-这次成功只证明 API 模式转换链可用，**不会验证微信公众号 `AppID` / `AppSecret`，也不会验证微信 IP 白名单**。
+这次成功只证明本地转换链可用，**不会验证微信公众号 `AppID` / `AppSecret`，也不会验证微信 IP 白名单**。
 
-## 八、明确确认后创建微信草稿
+## 七、明确确认后创建微信草稿
 
 创建草稿会调用微信接口并改变远端状态。先检查，看到结果后再由你明确确认，不能把检查和执行合成一步。
 
@@ -163,7 +151,7 @@ md2wechat convert article.md --draft --cover cover.jpg --wechat-account main --j
 
 不要用 `main` 检查后再用另一个账号执行。创建微信草稿不等于群发或正式发布；本教程不包含群发操作。
 
-## 九、常见问题
+## 八、常见问题
 
 ### Skill 已安装，但提示 `md2wechat: command not found`
 
@@ -176,10 +164,6 @@ Skill 不包含可执行 CLI。回到第三节执行 npm 全局安装；安装�
 ### `config init` 报文件已经存在
 
 这是防覆盖保护，不是配置丢失。保留 `~/.config/md2wechat/config.yaml`，用 `config validate --json` 和 `doctor --json` 检查。
-
-### API 预览或转换提示缺少 API Key
-
-API 模式需要 md2wechat API Key。它不是微信 `AppSecret`，也不是图片 provider key。按 [配置保姆级指南](CONFIG-WALKTHROUGH.md) 配置 `api.md2wechat_key` 后重试。
 
 ### 草稿提示缺封面
 
@@ -197,7 +181,7 @@ API 模式需要 md2wechat API Key。它不是微信 `AppSecret`，也不是图�
 
 不同版本可能显示“技能”“Skills”“SkillHub”或“插件”。如果当前版本提供“检查更新”入口，先更新，再按官方技能说明核对当前入口，不要凭相似名称安装来源不明的 Skill。
 
-## 十、相关文档
+## 九、相关文档
 
 - [安装指南](INSTALL.md)
 - [配置保姆级指南](CONFIG-WALKTHROUGH.md)

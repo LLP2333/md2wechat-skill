@@ -61,7 +61,7 @@ md2wechat themes list --json
 3. `MD2WECHAT_THEMES_DIR` 环境变量指向的目录
 4. 内置主题资产
 
-当需要选择主题，或 Brand Profile / 用户指令指定了主题时，Agent 必须读取 `type` 和 `selectable`：本地模式和 API 模式只能选择 `type: api` 且 `selectable: true` 的主题；AI 模式只能选择 `type: ai` 且 `selectable: true` 的主题。使用 `md2wechat themes show <theme_name> --json` 查看单个主题的详细配置。
+当需要选择主题，或 Brand Profile / 用户指令指定了主题时，Agent 必须读取 `type` 和 `selectable`：本地模式只能选择 `type: api` 且 `selectable: true` 的主题；AI 模式只能选择 `type: ai` 且 `selectable: true` 的主题。使用 `md2wechat themes show <theme_name> --json` 查看单个主题的详细配置。
 
 ### 1.3 查看可用图片 Provider（7 个）
 
@@ -114,7 +114,7 @@ md2wechat layout list --lifecycle compatibility --json  # 仅旧稿迁移
 
 计数维度固定为：83 个推荐场景条目、59 个推荐语法名、2 个 compatibility 模块、4 个基础增强能力，以及 65 项渲染层语法能力。场景条目不是 `layout list` 的条目数；新稿只从 recommended 语法名中选择。
 
-**⚠️ 重要约束**：高级排版语法（`:::module` ... `:::` 语法）在**本地模式（默认）和 API 模式**下渲染。使用 `--mode ai` 时，排版语法会被当作普通段落输出。
+**⚠️ 重要约束**：高级排版语法（`:::module` ... `:::` 语法）在**本地模式（默认）**下渲染。使用 `--mode ai` 时，排版语法会被当作普通段落输出。
 
 选择模块后，按固定顺序读取 `layout show <name> --json`：`input_positions` → primary `body_format` 与对应 `Opener`、`Fields` / `Rows` / `Body` → canonical `Variants[].Name` → canonical `Example`。`compatible_body_formats` 与 `Variants[].Aliases` 只记录旧稿兼容性，不得用来选择新内容。
 
@@ -157,13 +157,13 @@ md2wechat config validate
 md2wechat doctor --json
 ```
 
-`doctor` 是本地只读诊断命令。它检查 config load、默认转换模式、API key/base presence（仅 API 模式阻断）、默认主题兼容性、layout catalog、WeChat 草稿凭证。它不做 live auth、不上传图片、不创建草稿。
+`doctor` 是本地只读诊断命令。它检查 config load、默认转换模式、默认主题兼容性、layout catalog、WeChat 草稿凭证。它不做 live auth、不上传图片、不创建草稿。
 
 Agent 应读取：
 
 - `data.overall`：`ready` / `degraded` / `blocked`
 - `data.live`：固定为 `false`
-- `data.readiness.format_api`：是否可执行 API 转换
+- `data.readiness.format_local`：是否可执行本地转换
 - `data.readiness.advanced_layout`：是否可渲染高级排版模块
 - `data.readiness.draft`：是否具备创建草稿的本地凭证
 
@@ -267,7 +267,7 @@ md2wechat layout validate --file /tmp/md2wechat-format/<run-id>/article.formatte
 md2wechat layout show hero --json
 md2wechat layout show callout --json
 
-# 渲染模块 Markdown 片段（本地命令，不调用远程 API）
+# 渲染模块 Markdown 片段（本地命令，不联网）
 printf '%s\n' '重要提示' | md2wechat layout render callout --body-file - --json
 ```
 
@@ -286,36 +286,9 @@ md2wechat convert article.md --output output.html
 ```
 
 **前置条件**：
-- 不需要 `MD2WECHAT_API_KEY`，排版不联网
+- 不需要任何 API Key，排版不联网
 - 渲染默认发现的 59 个推荐高级排版语法和 2 个兼容模块；交互模块输出为静态内容
 - 输出 HTML 最终，可直接用于微信草稿或发布
-
-#### 模式 A2：API 模式（可选，远程排版）
-
-```bash
-md2wechat convert article.md --mode api --output output.html
-```
-
-**前置条件**：
-- 需要配置 `MD2WECHAT_API_KEY`，可通过 `MD2WECHAT_BASE_URL` 或 `api.md2wechat_base_url` 覆盖 API 地址
-- 只在用户明确要求远程渲染时使用
-
-**响应示例**：
-```json
-{
-  "success": true,
-  "code": "CONVERT_COMPLETED",
-  "data": {
-    "mode": "local",
-    "theme": "minimal-blue",
-    "output_file": "/path/to/output.html",
-    "image_count": 3,
-    "preview": false,
-    "upload": false,
-    "draft": false
-  }
-}
-```
 
 #### 模式 B：AI 模式（生成 prompt，不需要 API）
 
@@ -324,11 +297,10 @@ md2wechat convert article.md --mode ai --output output.html
 ```
 
 **特点**：
-- 不需要 md2wechat API Key
 - 不支持高级排版语法（`:::module` 被当作普通文本）
 - 适合不使用高级排版模块的轻量场景
 
-**注意**：API 模式失败时，CLI 不会自动切换模式。Agent 也不应静默切换；应报告失败并建议改用本地模式（`--mode local`），它同样渲染高级排版模块。不要降级到 AI 模式，因为 AI 模式不会渲染高级排版模块。
+**注意**：本地模式转换失败时，CLI 不会自动切换模式。Agent 也不应静默切换到 AI 模式，因为 AI 模式不会渲染高级排版模块。
 
 #### 模式 C：指定主题
 
@@ -371,7 +343,7 @@ Agent 应优先检查 `data.readiness.targets` 来决定是否可以继续，`bl
 - `targets.upload` 和 `targets.draft` 使用 `ready` / `blocked` / `not_requested`；如果用户请求 upload/draft 但目标是 `not_requested`，说明 inspect 运行时没有包含对应目标参数，应重新运行 `md2wechat inspect <article.md> --upload --json` 或 `md2wechat inspect <article.md> --draft --cover ... --json`，再根据 `ready` / `blocked` 决策。
 - `targets.preview` 表示预览保真度，只使用 `ready` / `degraded`，不是发布 blocker。
 - `blockers` 只包含会阻断至少一个目标的 error-level check；warn/info 仍只留在 `data.checks`。
-- `inspect readiness` 覆盖 metadata length、API key、theme/mode compatibility、本地图片、WeChat config、cover inputs。
+- `inspect readiness` 覆盖 metadata length、theme/mode compatibility、本地图片、WeChat config、cover inputs。
 - 如果执行路径是 `convert --mode ai --custom-prompt ...`，inspect 必须带同样的 `--mode ai --custom-prompt ...`，因为 custom prompt 会替代主题作为 AI 排版提示来源。
 
 ### 5.3 预览文章
@@ -448,13 +420,13 @@ md2wechat layout validate --file article.md --json
 ```
 
 响应解读：
-- `code: "LAYOUT_VALIDATED"` → 本地 catalog/schema 接受该语法；继续检查 warnings，远端渲染能力仍以真实 convert/conformance 为准
+- `code: "LAYOUT_VALIDATED"` → 本地 catalog/schema 接受该语法；继续检查 warnings，实际渲染效果以真实 convert 为准
 - `code: "LAYOUT_VALIDATE_HAS_ERRORS"` → 有错误，查看 `data.errors` 了解详情
 - `data.errors` — 包含错误位置和修复建议
 
 ### 7.2 在文章中使用排版模块
 
-在 Markdown 文件中使用 `:::` 语法（**本地模式和 API 模式下生效**）：
+在 Markdown 文件中使用 `:::` 语法（**本地模式下生效**）：
 
 ```markdown
 :::hero
@@ -506,25 +478,7 @@ md2wechat layout render cta --var title="立即订阅" --var note="持续更新"
 
 ## 八、异常处理与降级
 
-### 8.1 API 模式不可用
-
-**症状**：`convert` 命令返回 API key、base URL、网络或远程 API 错误。
-
-**处理**：
-```bash
-# 1. 本地只读诊断
-md2wechat doctor --json
-
-# 2. 查看当前解析到的配置
-md2wechat config show --format json
-
-# 3. 建议用户改用本地模式，同样渲染高级排版模块
-md2wechat convert article.md --mode local --output output.html
-```
-
-不要静默切换模式。本地模式和 API 模式都渲染高级排版模块；切换到 AI 模式会改变输出能力。
-
-### 8.2 Brand Profile 不存在
+### 8.1 Brand Profile 不存在
 
 **症状**：`md2wechat brand show` 返回 `BRAND_NOT_FOUND`（当命令可用时）
 
@@ -539,7 +493,7 @@ md2wechat convert article.md --mode local --output output.html
 md2wechat brand init
 ```
 
-### 8.3 排版语法错误
+### 8.2 排版语法错误
 
 **症状**：`md2wechat layout validate --file article.md --json` 返回错误
 
@@ -558,7 +512,7 @@ md2wechat layout render <module_name> --var KEY=VALUE
 md2wechat layout validate --file article.md --json
 ```
 
-### 8.4 发布失败
+### 8.3 发布失败
 
 常见原因及处理：
 
@@ -665,7 +619,7 @@ md2wechat layout render <failing_module> --var KEY=VALUE
 md2wechat layout validate --file article.md --json
 
 # 6. 转换并预览
-md2wechat convert article.md --mode api --output output.html
+md2wechat convert article.md --output output.html
 md2wechat preview article.md --output preview.html
 ```
 
@@ -687,19 +641,6 @@ export IMAGE_API_KEY=your_api_key
 
 # 5. 重新转换
 md2wechat convert article.md --output output.html
-```
-
-### 场景 E：处理 API 模式不可用
-
-```bash
-# 1. 本地诊断
-md2wechat doctor --json
-
-# 2. 查看当前配置
-md2wechat config show --format json
-
-# 3. 建议用户改用本地模式（同样渲染高级排版模块，不需要 API Key）
-md2wechat convert article.md --mode local --output output.html
 ```
 
 ---
@@ -779,4 +720,4 @@ JSON envelope 格式（v1）：
 
 ---
 
-*最后更新：与 md2wechat v3.9.0 同步*
+*最后更新：与 md2wechat v3.9.1 同步*

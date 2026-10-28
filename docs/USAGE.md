@@ -18,30 +18,16 @@
 
 ### 安装（最简单）
 
-推荐先安装 CLI，再安装 skill：
+先安装 CLI，再安装 skill：
 
 ```bash
-brew install geekjourneyx/tap/md2wechat
+npm install -g @qvqw2233/wechat-md
 md2wechat skills read md2wechat --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
+mkdir -p ~/.claude/skills
+cp -r "$(npm root -g)/@qvqw2233/wechat-md/skills/md2wechat" ~/.claude/skills/
 ```
 
-如果你已经有稳定可用的 Go 环境，也可以把第一步改成：
-
-```bash
-git clone https://github.com/LLP2333/md2wechat-skill.git && cd md2wechat-skill && make install
-```
-
-如果以上都不适合，再改成固定版本安装脚本：
-
-```bash
-curl -fsSL https://github.com/LLP2333/md2wechat-skill/releases/download/v3.9.0/install.sh | bash
-export PATH="$HOME/.local/bin:$PATH"
-md2wechat skills read md2wechat --json
-npx skills add https://github.com/geekjourneyx/md2wechat-skill --skill md2wechat
-```
-
-`md2wechat skills read md2wechat --json` 读取的是当前二进制内置的 coding-agent SOP，用于确认 Agent 指令和 CLI 版本一致。`npx skills add ...` 仍然是让 Claude Code / Codex / OpenCode 自动发现该 skill 的外部安装步骤。
+`md2wechat skills read md2wechat --json` 读取的是当前二进制内置的 coding-agent SOP，用于确认 Agent 指令和 CLI 版本一致。复制 skill 目录是让 Claude Code / Codex / OpenCode 自动发现该 skill 的步骤；Codex、OpenCode 把同一个目录复制到各自的 skills 目录即可。
 
 ### 使用方式
 
@@ -192,20 +178,10 @@ md2wechat convert article.md --mode local --theme elegant-blue
 ```
 
 **特点**：
-- 不调用远程排版服务，同样输入得到同样输出
+- 排版不联网，同样输入得到同样输出
 - 支持 `themes list --json` 中全部 48 个 `type: api` 主题
 - 交互模块（`expand`、`svg-reveal`、`svg-swipe-gallery`、`cover-reveal`）输出为静态内容，`motion` 字段不生效
 - 视觉效果由本仓库实现，和远程 API 不完全一致
-
-### API 模式（可选）
-
-使用 md2wechat.cn 远程排版服务，需要 API Key。
-
-```bash
-md2wechat convert article.md --mode api --api-key "your_key"
-```
-
-**可用主题**：与本地模式相同，见 `md2wechat themes list --json`。
 
 ### AI 模式（适合定制）
 
@@ -228,14 +204,14 @@ API Key；模型访问能力由宿主 Agent 或外部模型提供。
 
 ### 模式对比
 
-| 特性 | 本地模式（默认） | API 模式 | AI 模式 |
-|------|---------|---------|---------|
-| CLI 返回结果 | 转换后的 HTML | 转换后的 HTML | `action_required` 和 `data.prompt` |
-| HTML 生成方 | 本机 md2wechat | md2wechat.cn API | 宿主 Agent 或外部模型 |
-| 需要 `MD2WECHAT_API_KEY` | 否 | 是 | 否 |
-| 高级排版模块 | 渲染 | 渲染 | 不解析 |
-| 本次调用上传图片/创建草稿 | 按显式参数执行 | 按显式参数执行 | 不执行 |
-| 主题来源 | `themes list` 中的 `type: api` 主题 | `themes list` 中的 `type: api` 主题 | `themes list` 中的 AI 主题 |
+| 特性 | 本地模式（默认） | AI 模式 |
+|------|---------|---------|
+| CLI 返回结果 | 转换后的 HTML | `action_required` 和 `data.prompt` |
+| HTML 生成方 | 本机 md2wechat | 宿主 Agent 或外部模型 |
+| 需要 API Key | 否 | 否 |
+| 高级排版模块 | 渲染 | 不解析 |
+| 本次调用上传图片/创建草稿 | 按显式参数执行 | 不执行 |
+| 主题来源 | `themes list` 中的 `type: api` 主题 | `themes list` 中的 AI 主题 |
 
 ---
 
@@ -518,7 +494,6 @@ done
 # 设置环境变量
 export WECHAT_APPID="${{ secrets.WECHAT_APPID }}"
 export WECHAT_SECRET="${{ secrets.WECHAT_SECRET }}"
-export MD2WECHAT_API_KEY="${{ secrets.MD2WECHAT_API_KEY }}"
 
 # 创建草稿元数据输出目录
 mkdir -p outputs

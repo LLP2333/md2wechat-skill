@@ -1,7 +1,7 @@
 # 高级排版模块完全教程
 
-> **前提**：高级排版模块在 **本地模式**（默认，免费，无需 API Key）和 API 模式下渲染，AI 模式不解析。`convert` 默认即本地模式，无需额外参数。  
-> 本地模式把交互模块输出为完整静态内容，`motion` 字段不生效；视觉效果和远程 API 不完全一致。
+> **前提**：高级排版模块在 **本地模式**（默认，免费，无需 API Key）下渲染，AI 模式不解析。`convert` 默认即本地模式，无需额外参数。  
+> 本地模式把交互模块输出为完整静态内容，`motion` 字段不生效。
 
 本教程讲解微信公众号高级排版模块的核心用法。当前数量与完整规格以 `md2wechat capabilities --json`、`layout list --json` 和 `layout show` 为准；默认 discovery 返回 59 个推荐语法。
 
@@ -250,7 +250,7 @@ md2wechat layout validate --file article.md --json
 - 返回 `code: LAYOUT_VALIDATED` 且没有 errors → 本地语法可进入转换
 - 返回 `code: LAYOUT_VALIDATE_HAS_ERRORS` → 检查 errors，修复后再转
 
-这里的“可以转换”只表示本地 catalog/schema 已接受语法。真正的 API HTML 渲染能力仍需远端 conformance 或一次真实转换证明；两者不是同一层验证。
+这里的“可以转换”只表示本地 catalog/schema 已接受语法。实际渲染效果仍需一次真实 `preview` 或 `convert` 确认；两者不是同一层验证。
 
 ---
 
@@ -762,8 +762,8 @@ symbol: asterism
 :::faq[常见问题]
 Q: 这些模块只能在某个主题里用吗？
 A: 不是，专业主题都支持高级排版模块。
-Q: API 模式和 AI 模式有什么区别？
-A: API 模式直接转换输出 HTML，AI 模式生成提示词给外部 AI。
+Q: 本地模式和 AI 模式有什么区别？
+A: 本地模式直接转换输出 HTML，AI 模式生成提示词给外部 AI。
 Q: 我的文章需要用几个模块？
 A: 按 4 件事原则选，hero 1 个，CTA 1 个，不要堆。
 :::
@@ -931,7 +931,7 @@ body: 这是默认 info 样式，适合一般说明。
 
 :::callout
 type: warning
-body: ⚠️ 注意：高级排版模块在本地模式和 API 模式下渲染，AI 模式不支持。
+body: ⚠️ 注意：高级排版模块在本地模式下渲染，AI 模式不支持。
 :::
 
 :::callout
@@ -1051,7 +1051,7 @@ A: 不需要，照着字段填写就行。
 
 ```
 :::comparison-table
-{"left":{"title":"AI 模式","items":["灵活度高","支持多种风格","不需要 API Key"]},"right":{"title":"API 模式","items":["稳定一致","支持高级排版模块","支持 48 个专业主题"]}}
+{"left":{"title":"AI 模式","items":["灵活度高","支持多种风格"]},"right":{"title":"本地模式","items":["稳定一致","支持高级排版模块","支持 48 个主题"]}}
 :::
 ```
 
@@ -1092,7 +1092,7 @@ A: 不需要，照着字段填写就行。
 | `svg-swipe-gallery` | `markdown_images` | 多图滑动浏览 |
 | `expand` | `fields_markdown` | 默认完整静态正文；显式 `first-layer` 是待验证的原生折叠候选 |
 
-这些语法在本地模式下输出为完整静态内容；在 API 模式下由远端 renderer 转成 HTML。`layout validate` 只证明本地 schema 接受输入，不证明远端已部署对应 renderer，也不证明微信阅读器支持点击。
+这些语法在本地模式下输出为完整静态内容。`layout validate` 只证明本地 schema 接受输入，不证明微信阅读器支持点击。
 
 `expand` 的 `title` 必填，`summary` 和 `label` 可选。头部字段与正文之间必须有独立的 `---`；代码围栏中的 `---`、`:::` 是正文，不会结束模块。复杂正文保存到文件后执行：
 
@@ -1108,7 +1108,7 @@ title: 查看完整方法
 md2wechat layout show expand --json
 md2wechat layout render expand --body-file /tmp/expand-body.md --json
 md2wechat layout validate --file article.md --json
-md2wechat convert article.md --mode api --output /tmp/article.html
+md2wechat convert article.md --output /tmp/article.html
 ```
 
 `/tmp/expand-body.md` 的内容：
@@ -1243,7 +1243,7 @@ symbol: diamond-solid
 
 :::checklist[上手清单]
 done | 安装 md2wechat CLI | 确认 version 输出
-pending | 配置 API Key | 先运行 config validate
+pending | 初始化配置 | 先运行 config validate
 pending | 运行 layout list 发现模块 | 只选择能正确填充的模块
 pending | 写一篇文章 | 先 validate 再 convert
 :::
@@ -1375,12 +1375,12 @@ md2wechat layout show tweet --json
 
 ### 错误 4：validate 通过但转换后看不到模块效果
 
-**原因**：配置把默认模式设成了 `ai`，或使用 `--mode api` 时 API Key 未配置。
+**原因**：配置把默认模式设成了 `ai`。
 
 **解决**：
 
 ```bash
-# 查看当前默认模式（应为 local 或 api）
+# 查看当前默认模式（应为 local）
 md2wechat config show --format json | grep default_convert_mode
 
 # 直接用本地模式转换
