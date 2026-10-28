@@ -121,15 +121,12 @@ func TestRunGenerateImageSubjectReferenceUsesProviderMetadata(t *testing.T) {
 
 // TestRunGenerateImageRejectsUnsupportedSubjectReferenceBeforeWeChatPreflight
 // protects the no-side-effect validation boundary for deterministic input
-// errors. An unsupported provider must fail before named-account API-key
-// verification can make a network request.
+// errors. An unsupported provider must fail before any WeChat preflight.
 func TestRunGenerateImageRejectsUnsupportedSubjectReferenceBeforeWeChatPreflight(t *testing.T) {
 	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
 	t.Cleanup(func() {
 		cfg = oldCfg
 		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
 	})
 
 	cfg = &config.Config{
@@ -142,11 +139,6 @@ func TestRunGenerateImageRejectsUnsupportedSubjectReferenceBeforeWeChatPreflight
 		ImageModel:      "gpt-image-2",
 	}
 	wechatAccountName = "main"
-	preflightCalled := false
-	validateAPIKeyForWeChatAccount = func(string) error {
-		preflightCalled = true
-		return nil
-	}
 
 	err := runGenerateImageWithInput(generateImageInput{
 		RawPrompt:        "Keep the portrait identity",
@@ -155,9 +147,6 @@ func TestRunGenerateImageRejectsUnsupportedSubjectReferenceBeforeWeChatPreflight
 	cliErr, ok := extractCLIError(err)
 	if !ok || cliErr.Code != codeConfigInvalid {
 		t.Fatalf("runGenerateImageWithInput() error = %#v, want %s", err, codeConfigInvalid)
-	}
-	if preflightCalled {
-		t.Fatal("unsupported subject reference must fail before API-key preflight")
 	}
 }
 

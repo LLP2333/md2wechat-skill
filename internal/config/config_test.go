@@ -743,7 +743,7 @@ func TestLoadStrictRejectsMalformedConfigWhileLoadFallsBack(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load() fallback error = %v", err)
 	}
-	if cfg.DefaultConvertMode != "api" {
+	if cfg.DefaultConvertMode != "local" {
 		t.Fatalf("fallback config = %#v", cfg)
 	}
 }

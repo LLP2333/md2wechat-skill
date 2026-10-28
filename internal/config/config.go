@@ -137,7 +137,7 @@ func LoadStrict() (*Config, error) {
 // LoadWithDefaults 使用指定配置文件路径加载配置
 func LoadWithDefaults(configPath string) (*Config, error) {
 	cfg := &Config{
-		DefaultConvertMode:    "api",
+		DefaultConvertMode:    "local",
 		DefaultTheme:          "default",
 		DefaultBackgroundType: "none",
 		MD2WechatBaseURL:      "https://www.md2wechat.cn",
@@ -483,11 +483,11 @@ func (c *Config) Validate() error {
 
 func (c *Config) validateCommon() error {
 	// 验证转换模式
-	if c.DefaultConvertMode != "api" && c.DefaultConvertMode != "ai" {
+	if c.DefaultConvertMode != "local" && c.DefaultConvertMode != "api" && c.DefaultConvertMode != "ai" {
 		return &ConfigError{
 			Field:   "ConvertMode",
-			Message: "转换模式必须是 'api' 或 'ai'",
-			Hint:    "配置文件中设置 api.convert_mode: api",
+			Message: "转换模式必须是 'local'、'api' 或 'ai'",
+			Hint:    "配置文件中设置 api.convert_mode: local",
 		}
 	}
 

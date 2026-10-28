@@ -289,7 +289,7 @@ func loadDiscoveryConfig() *config.Config {
 	discoveryCfg, err := config.LoadWithDefaults("")
 	if err != nil {
 		return &config.Config{
-			DefaultConvertMode: "api",
+			DefaultConvertMode: "local",
 			DefaultTheme:       "default",
 			ImageProvider:      "openai",
 		}
@@ -428,8 +428,8 @@ func buildCapabilitiesData() (map[string]any, error) {
 	return map[string]any{
 		"commands": topLevelCommandNames(),
 		"convert": map[string]any{
-			"default_mode":     "api",
-			"supported_modes":  []string{"api", "ai"},
+			"default_mode":     "local",
+			"supported_modes":  []string{"local", "api", "ai"},
 			"font_sizes":       []string{"small", "medium", "large"},
 			"background_types": []string{"default", "grid", "none"},
 			"default_theme":    defaultTheme,
@@ -606,7 +606,8 @@ func buildLayoutCapabilityData() map[string]any {
 		"base_enhancement_count":     baseEnhancementCount,
 		"render_syntax_count":        renderSyntaxCount,
 		"supports_validate":          true,
-		"api_mode_only":              true,
+		"api_mode_only":              false,
+		"render_modes":               []string{"local", "api"},
 		"schema_version":             layoutcatalog.SchemaVersion,
 		"serves":                     []string{"attention", "readability", "memorability", "conversion"},
 		"categories":                 categories,

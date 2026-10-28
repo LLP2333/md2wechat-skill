@@ -50,6 +50,7 @@ func printDoctorReport(report doctor.Report) {
 		}
 	}
 	_, _ = fmt.Fprintf(os.Stdout, "\nReadiness:\n")
+	_, _ = fmt.Fprintf(os.Stdout, "  format_local: %v\n", report.Readiness.FormatLocal)
 	_, _ = fmt.Fprintf(os.Stdout, "  format_api: %v\n", report.Readiness.FormatAPI)
 	_, _ = fmt.Fprintf(os.Stdout, "  advanced_layout: %v\n", report.Readiness.AdvancedLayout)
 	_, _ = fmt.Fprintf(os.Stdout, "  draft: %v\n", report.Readiness.Draft)

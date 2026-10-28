@@ -38,7 +38,7 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 |---|---|
 | Markdown 转微信 HTML | `convert`，支持预览、上传图片、创建草稿 |
 | 发布前检查 | `inspect --json` 输出标题、摘要、图片、cover、draft readiness |
-| 稳定排版 | API 模式成功时返回最终 HTML，覆盖 83 个主推高级排版场景条目和 59 个主推 `:::` 语法名 |
+| 稳定排版 | 默认本地模式免费、离线返回最终 HTML，内置 48 个主题并渲染全部 `:::` 高级排版模块 |
 | Agent 自动化 | `capabilities`、`doctor`、`themes`、`layout`、`providers` 等 discovery 命令 |
 | 内容生产 | `write`、`humanize`、`title suggest`、`generate_cover`、`generate_infographic` |
 | 定向产品写作（v3.7.0） | 组合目标搜索产品、文章平台、体裁与作者语气，也可准备分平台百科词条草稿；[使用说明](docs/WRITING.md) |
@@ -86,7 +86,7 @@ md2wechat config init --json
 md2wechat config validate --json
 ```
 
-以下预览和转换命令使用**付费 API 模式**，需要先配置 md2wechat API Key。[联系我获取 Key](#联系我) · [查看服务范围与价格](https://www.md2wechat.cn/pricing?utm_source=github&utm_medium=readme&utm_campaign=api)。完成凭证配置后，先检查文章，再把 HTML 明确写入本地文件：
+以下预览和转换命令默认使用**本地模式**（`--mode local`）：在本机渲染主题和高级排版模块，不需要 API Key，也不调用远程排版服务。先检查文章，再把 HTML 明确写入本地文件：
 
 ```bash
 md2wechat inspect article.md --json
@@ -103,7 +103,7 @@ md2wechat convert article.md --draft --cover cover.jpg
 
 如果使用可选的 `--wechat-account`，必须在 `inspect` 和 `convert` 两条命令中传入同一个账号名。
 
-想先了解免费 AI 模式？它会生成交给宿主 Agent / 外部 LLM 继续处理的 prompt，不会直接返回最终 HTML。见 [AI 模式使用步骤](docs/QUICKSTART.md#5-使用-ai-模式)。
+另有两种可选模式：`--mode api` 调用远程 md2wechat.cn 排版服务（需要 `MD2WECHAT_API_KEY`）；`--mode ai` 生成交给宿主 Agent / 外部 LLM 继续处理的 prompt，不会直接返回最终 HTML，见 [AI 模式使用步骤](docs/QUICKSTART.md#5-使用-ai-模式)。
 
 v3.6.0 新增跨平台草稿流程：先准备正文，再由宿主 Agent 按内置步骤操作已登录的浏览器。已安装版本先用 `capabilities --json` 确认支持：
 
@@ -122,21 +122,24 @@ md2wechat skills read md2wechat references/sync/workflow.md --json
 
 ---
 
-## 专业 API
+## 转换模式
 
-API 模式适合需要稳定输出、多人协作、批量发布或 Agent 自动化的场景。
+| 能力 | 本地模式（默认） | API 模式（可选） | AI 模式 |
+|---|---|---|---|
+| 输出方式 | 本机直接生成微信 HTML | 远程服务返回微信 HTML | 生成 prompt，由外部 LLM 继续处理 |
+| 凭证 | 不需要 | `MD2WECHAT_API_KEY` | 不需要 |
+| 主题 | 48 个 `type: api` 主题 | 48 个 `type: api` 主题 | 3 个基础 AI 主题 |
+| 高级排版模块 | 渲染全部 `:::module`（交互模块输出为静态内容） | 远程 renderer 解析 | 不解析 |
+| 网络 | 排版不联网 | 每次转换调用 md2wechat.cn | 不联网 |
 
-专业 API 是付费服务，包含稳定转换接口、定期更新和专属创作交流群。服务范围与价格以官网及开通时确认的信息为准。
+本地模式的主题配色和模块样式由本仓库实现，和远程 API 的视觉效果不完全一致。命名公众号账号和 `wechat.proxy_url` 都是本地配置，上传和建草稿不需要 API Key。
+
+### 专业 API（可选）
+
+API 模式是作者提供的付费远程排版服务，适合需要和官方视觉完全一致的场景。服务范围与价格以官网及开通时确认的信息为准。
 
 [查看服务范围与价格](https://www.md2wechat.cn/pricing?utm_source=github&utm_medium=readme&utm_campaign=api) · **[联系我 / 获取 API Key](#联系我)** · [接口文档](https://www.md2wechat.cn/api-docs?utm_source=github&utm_medium=readme&utm_campaign=api)
 
-| 能力 | 免费 AI 模式 | 专业 API 模式 |
-|---|---|---|
-| 输出方式 | 生成 prompt，由外部 LLM 继续处理 | 直接返回微信 HTML |
-| 主题 | 3 个基础主题 | 48 个专业主题 |
-| 高级排版模块 | 不解析，`:::module` 作为普通段落输出 | API renderer 解析 59 个推荐 `:::module` 语法 |
-| 转换结果 | 需要外部 LLM 完成 HTML | converter 成功时返回最终 HTML |
-| 发布自动化 | 适合实验 | 适合团队、客户号、矩阵号 |
 
 专业能力包括：
 
@@ -241,7 +244,7 @@ md2wechat generate_infographic --article article.md --plan --json
 
 ## 高级排版
 
-API 模式支持 `:::module` 语法，用 Markdown 写结构化公众号排版。
+本地模式（默认）和 API 模式都支持 `:::module` 语法，用 Markdown 写结构化公众号排版。
 
 ```markdown
 :::hero
@@ -252,7 +255,7 @@ subtitle: 为什么读者愿意继续读下去
 
 :::callout
 type: info
-body: 高级排版模块只在 API 模式渲染。
+body: 高级排版模块在本地模式和 API 模式渲染，AI 模式不解析。
 :::
 ```
 

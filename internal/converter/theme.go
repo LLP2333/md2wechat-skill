@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/geekjourneyx/md2wechat-skill/internal/assets"
+	"github.com/geekjourneyx/md2wechat-skill/internal/localrender"
 	"gopkg.in/yaml.v3"
 )
 
@@ -485,7 +486,12 @@ func (tm *ThemeManager) ResolveThemeForMode(mode ConvertMode, name string) (*The
 		}
 	}
 
-	if theme.Type != string(mode) {
+	// Local mode draws the same layout theme catalog as API mode.
+	expectedType := string(mode)
+	if mode == ModeLocal {
+		expectedType = "api"
+	}
+	if theme.Type != expectedType {
 		return nil, &ThemeCompatibilityError{
 			Code: "THEME_MODE_MISMATCH",
 			Mode: mode,
@@ -500,6 +506,17 @@ func (tm *ThemeManager) ResolveThemeForMode(mode ConvertMode, name string) (*The
 			Mode: mode,
 			Name: name,
 			Type: theme.Type,
+		}
+	}
+
+	if mode == ModeLocal {
+		if _, ok := localrender.ResolveTheme(theme.APITheme); !ok {
+			return nil, &ThemeCompatibilityError{
+				Code: "THEME_NOT_SELECTABLE",
+				Mode: mode,
+				Name: name,
+				Type: theme.Type,
+			}
 		}
 	}
 

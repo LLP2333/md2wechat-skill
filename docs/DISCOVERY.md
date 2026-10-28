@@ -40,7 +40,7 @@ md2wechat capabilities --json
 - 当前可枚举的 theme
 - 当前可枚举的 prompt catalog
 - `data.article_advice` 是否可用、命令名、建议工具、响应 code、是否要求 JSON、是否有副作用
-- `layout` catalog 是否可用、模块数量、schema version、是否仅 API 模式渲染
+- `layout` catalog 是否可用、模块数量、schema version，以及哪些模式渲染模块（本地模式和 API 模式）
 - `skills` 是否作为当前二进制的内置 Agent SOP 入口开放
 
 示例片段：
@@ -64,7 +64,8 @@ md2wechat capabilities --json
     "base_enhancement_count": 4,
     "render_syntax_count": 65,
     "supports_validate": true,
-    "api_mode_only": true,
+    "api_mode_only": false,
+    "render_modes": ["local", "api"],
     "schema_version": "1"
   },
   "sync": {
@@ -126,7 +127,7 @@ md2wechat config wechat-accounts --json
 
 `config wechat-accounts` 是本地只读命令，用来列出配置文件中的命名公众号账号、当前解析到的账号和 `default_account`。它不调用 `/api/auth/validate`，不要求 `MD2WECHAT_API_KEY`，也不会输出 secret。
 
-命名账号只在上传、生成并上传图片、创建草稿、创建图片消息，以及 `convert --upload` / `convert --draft` 等有微信副作用的路径上触发 API-key 校验。
+命名账号只是本地配置，任何路径都不会因为命名账号触发 API-key 校验。
 
 ## 确认层命令
 
@@ -238,7 +239,7 @@ Collection descriptor 也会出现在发现结果里。例如 `api-collection` �
 
 `convert` 和 `inspect` readiness 现在会 fail closed：
 
-- `--mode api` 不能选择 AI 主题；
+- `--mode local` 和 `--mode api` 不能选择 AI 主题；
 - `--mode ai` 不能选择 API 主题；
 - `selectable: false` 的主题不能用于转换；
 - `--mode ai --custom-prompt` 是例外路径，custom prompt 本身就是排版提示词来源，不要求主题匹配；检查这个路径时，`inspect` 也要带同样的 `--custom-prompt`。

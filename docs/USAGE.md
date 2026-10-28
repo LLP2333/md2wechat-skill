@@ -182,26 +182,30 @@ md2wechat preview article.md --json
 
 ## 转换模式
 
-### API 模式（推荐新手）
+### 本地模式（默认，推荐）
 
-使用 md2wechat.cn API 进行转换，稳定可靠。
+在本机渲染主题和全部 `:::` 高级排版模块，免费、离线，不需要 API Key。
+
+```bash
+md2wechat convert article.md
+md2wechat convert article.md --mode local --theme elegant-blue
+```
+
+**特点**：
+- 不调用远程排版服务，同样输入得到同样输出
+- 支持 `themes list --json` 中全部 48 个 `type: api` 主题
+- 交互模块（`expand`、`svg-reveal`、`svg-swipe-gallery`、`cover-reveal`）输出为静态内容，`motion` 字段不生效
+- 视觉效果由本仓库实现，和远程 API 不完全一致
+
+### API 模式（可选）
+
+使用 md2wechat.cn 远程排版服务，需要 API Key。
 
 ```bash
 md2wechat convert article.md --mode api --api-key "your_key"
 ```
 
-**特点**：
-- 转换速度快
-- 结果稳定一致
-- 需要注册 API Key
-
-**可用主题**：
-- `default` - 默认主题
-- `bytedance` - 字节跳动风格
-- `apple` - Apple 极简风格
-- `sports` - 运动活力风格
-- `chinese` - 中国传统文化风格
-- `cyber` - 赛博朋克风格
+**可用主题**：与本地模式相同，见 `md2wechat themes list --json`。
 
 ### AI 模式（适合定制）
 
@@ -224,13 +228,14 @@ API Key；模型访问能力由宿主 Agent 或外部模型提供。
 
 ### 模式对比
 
-| 特性 | API 模式 | AI 模式 |
-|------|---------|---------|
-| CLI 返回结果 | 转换后的 HTML | `action_required` 和 `data.prompt` |
-| HTML 生成方 | md2wechat API | 宿主 Agent 或外部模型 |
-| md2wechat 内置 AI Key | 不适用 | 不需要 |
-| 本次调用上传图片/创建草稿 | 按显式参数执行 | 不执行 |
-| 主题来源 | `themes list` 中的 API 主题 | `themes list` 中的 AI 主题 |
+| 特性 | 本地模式（默认） | API 模式 | AI 模式 |
+|------|---------|---------|---------|
+| CLI 返回结果 | 转换后的 HTML | 转换后的 HTML | `action_required` 和 `data.prompt` |
+| HTML 生成方 | 本机 md2wechat | md2wechat.cn API | 宿主 Agent 或外部模型 |
+| 需要 `MD2WECHAT_API_KEY` | 否 | 是 | 否 |
+| 高级排版模块 | 渲染 | 渲染 | 不解析 |
+| 本次调用上传图片/创建草稿 | 按显式参数执行 | 按显式参数执行 | 不执行 |
+| 主题来源 | `themes list` 中的 `type: api` 主题 | `themes list` 中的 `type: api` 主题 | `themes list` 中的 AI 主题 |
 
 ---
 

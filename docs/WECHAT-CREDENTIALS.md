@@ -152,7 +152,7 @@ wechat:
 md2wechat convert article.md --draft --cover cover.jpg --wechat-account client-a
 ```
 
-命名账号属于高级 API 功能。使用命名账号执行微信副作用前，CLI 会要求 `MD2WECHAT_API_KEY` 有效；本地查看命令不联网：
+命名账号只是本地配置，执行微信副作用不需要 `MD2WECHAT_API_KEY`；本地查看命令不联网：
 
 ```bash
 md2wechat config wechat-accounts --json

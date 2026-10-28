@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,13 +9,11 @@ import (
 	"github.com/geekjourneyx/md2wechat-skill/internal/config"
 )
 
-func TestPrepareWeChatSideEffectRequiresAPIKeyForNamedAccount(t *testing.T) {
+func TestPrepareWeChatSideEffectNamedAccountNeedsNoAPIKey(t *testing.T) {
 	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
 	t.Cleanup(func() {
 		cfg = oldCfg
 		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
 	})
 
 	cfg = &config.Config{
@@ -25,25 +22,21 @@ func TestPrepareWeChatSideEffectRequiresAPIKeyForNamedAccount(t *testing.T) {
 		},
 	}
 	wechatAccountName = "main"
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		t.Fatal("validator should not be called when key is missing")
-		return nil
-	}
 
-	err := prepareWeChatSideEffect()
-	if err == nil || !strings.Contains(err.Error(), "API_KEY_REQUIRED") {
+	if err := prepareWeChatSideEffect(); err != nil {
 		t.Fatalf("prepareWeChatSideEffect() error = %v", err)
+	}
+	if cfg.WechatAppID != "appid" || cfg.WechatSecret != "secret" {
+		t.Fatalf("selected credentials = %q/%q", cfg.WechatAppID, cfg.WechatSecret)
 	}
 }
 
 func TestPrepareWeChatSideEffectHonorsFlagAfterAmbiguousLoad(t *testing.T) {
 	oldCfg, oldLog, oldAccount := cfg, log, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
 	t.Cleanup(func() {
 		cfg = oldCfg
 		log = oldLog
 		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
 	})
 
 	home := t.TempDir()
@@ -73,18 +66,12 @@ wechat:
 	cfg = nil
 	log = nil
 	wechatAccountName = "main"
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		t.Fatal("validator should not be called when key is missing")
-		return nil
-	}
 
 	if err := initConfig(); err != nil {
 		t.Fatalf("initConfig() error = %v", err)
 	}
-	err := prepareWeChatSideEffect()
-	cliErr, ok := err.(*cliError)
-	if !ok || cliErr.Code != codeAPIKeyRequired {
-		t.Fatalf("prepareWeChatSideEffect() error = %#v", err)
+	if err := prepareWeChatSideEffect(); err != nil {
+		t.Fatalf("prepareWeChatSideEffect() error = %v", err)
 	}
 	if cfg.WechatAppID != "wx-main" || cfg.WechatSecret != "secret-main" {
 		t.Fatalf("selected credentials = %q/%q", cfg.WechatAppID, cfg.WechatSecret)
@@ -125,172 +112,40 @@ func TestRunInspectFailsClosedForMissingExplicitWechatAccount(t *testing.T) {
 	}
 }
 
-func TestPrepareWeChatSideEffectDoesNotValidateDirectLegacyPath(t *testing.T) {
-	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
-	t.Cleanup(func() {
-		cfg = oldCfg
-		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
-	})
-
-	cfg = &config.Config{WechatAppID: "appid", WechatSecret: "secret"}
-	wechatAccountName = ""
-	called := false
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		called = true
-		return nil
+func TestPrepareWeChatSideEffectSideEffectPathsNeedNoAPIKey(t *testing.T) {
+	cases := map[string]*config.Config{
+		"direct legacy": {WechatAppID: "appid", WechatSecret: "secret"},
+		"proxy url":     {WechatAppID: "appid", WechatSecret: "secret", WechatProxyURL: "https://proxy.example.com"},
 	}
-
-	if err := prepareWeChatSideEffect(); err != nil {
-		t.Fatalf("prepareWeChatSideEffect() error = %v", err)
-	}
-	if called {
-		t.Fatal("direct legacy path should not validate API key")
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			oldCfg, oldAccount := cfg, wechatAccountName
+			t.Cleanup(func() {
+				cfg = oldCfg
+				wechatAccountName = oldAccount
+			})
+			cfg = c
+			wechatAccountName = ""
+			if err := prepareWeChatSideEffect(); err != nil {
+				t.Fatalf("prepareWeChatSideEffect() error = %v", err)
+			}
+		})
 	}
 }
 
-func TestPrepareWeChatSideEffectProxyURLRequiresAPIKey(t *testing.T) {
+func TestPrepareWeChatSideEffectStillRequiresWeChatCredentials(t *testing.T) {
 	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
 	t.Cleanup(func() {
 		cfg = oldCfg
 		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
 	})
-
-	cfg = &config.Config{
-		WechatAppID:     "appid",
-		WechatSecret:    "secret",
-		WechatProxyURL:  "https://proxy.example.com",
-		MD2WechatAPIKey: "",
-	}
+	cfg = &config.Config{MD2WechatAPIKey: "api-key"}
 	wechatAccountName = ""
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		t.Fatal("validator should not be called when key is missing")
-		return nil
-	}
 
 	err := prepareWeChatSideEffect()
 	cliErr, ok := err.(*cliError)
-	if !ok || cliErr.Code != codeAPIKeyRequired {
+	if !ok || cliErr.Code != codeConfigInvalid {
 		t.Fatalf("prepareWeChatSideEffect() error = %#v", err)
-	}
-}
-
-func TestPrepareWeChatSideEffectProxyURLUsesConfiguredAPIKey(t *testing.T) {
-	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
-	t.Cleanup(func() {
-		cfg = oldCfg
-		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
-	})
-
-	cfg = &config.Config{
-		WechatAppID:     "appid",
-		WechatSecret:    "secret",
-		WechatProxyURL:  "https://proxy.example.com",
-		MD2WechatAPIKey: "configured-api-key",
-	}
-	wechatAccountName = ""
-	var gotKey string
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		gotKey = apiKey
-		return nil
-	}
-
-	if err := prepareWeChatSideEffect(); err != nil {
-		t.Fatalf("prepareWeChatSideEffect() error = %v", err)
-	}
-	if gotKey != "configured-api-key" {
-		t.Fatalf("validator api key = %q, want configured-api-key", gotKey)
-	}
-}
-
-func TestPrepareWeChatSideEffectProxyURLUsesAPIKeyOverride(t *testing.T) {
-	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
-	t.Cleanup(func() {
-		cfg = oldCfg
-		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
-	})
-
-	cfg = &config.Config{
-		WechatAppID:     "appid",
-		WechatSecret:    "secret",
-		WechatProxyURL:  "https://proxy.example.com",
-		MD2WechatAPIKey: "configured-api-key",
-	}
-	wechatAccountName = ""
-	var gotKey string
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		gotKey = apiKey
-		return nil
-	}
-
-	if err := prepareWeChatSideEffectWithAPIKey("flag-api-key"); err != nil {
-		t.Fatalf("prepareWeChatSideEffectWithAPIKey() error = %v", err)
-	}
-	if gotKey != "flag-api-key" {
-		t.Fatalf("validator api key = %q, want flag-api-key", gotKey)
-	}
-}
-
-func TestPrepareWeChatSideEffectMapsInvalidAPIKey(t *testing.T) {
-	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
-	t.Cleanup(func() {
-		cfg = oldCfg
-		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
-	})
-
-	cfg = &config.Config{
-		MD2WechatAPIKey: "bad-key",
-		WechatAccounts: map[string]config.WechatAccount{
-			"main": {AppID: "appid", Secret: "secret"},
-		},
-	}
-	wechatAccountName = "main"
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		return errors.New("API_KEY_INVALID: MD2WECHAT_API_KEY is invalid")
-	}
-
-	err := prepareWeChatSideEffect()
-	cliErr, ok := err.(*cliError)
-	if !ok || cliErr.Code != codeAPIKeyInvalid {
-		t.Fatalf("error = %#v", err)
-	}
-}
-
-func TestPrepareWeChatSideEffectUsesAPIKeyOverride(t *testing.T) {
-	oldCfg, oldAccount := cfg, wechatAccountName
-	oldValidate := validateAPIKeyForWeChatAccount
-	t.Cleanup(func() {
-		cfg = oldCfg
-		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidate
-	})
-
-	cfg = &config.Config{
-		WechatAccounts: map[string]config.WechatAccount{
-			"main": {AppID: "appid", Secret: "secret"},
-		},
-	}
-	wechatAccountName = "main"
-	var gotKey string
-	validateAPIKeyForWeChatAccount = func(apiKey string) error {
-		gotKey = apiKey
-		return nil
-	}
-
-	if err := prepareWeChatSideEffectWithAPIKey("flag-api-key"); err != nil {
-		t.Fatalf("prepareWeChatSideEffectWithAPIKey() error = %v", err)
-	}
-	if gotKey != "flag-api-key" {
-		t.Fatalf("validator api key = %q, want flag-api-key", gotKey)
 	}
 }
 

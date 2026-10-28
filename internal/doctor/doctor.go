@@ -28,6 +28,7 @@ type Check struct {
 }
 
 type Readiness struct {
+	FormatLocal    bool `json:"format_local"`
 	FormatAPI      bool `json:"format_api"`
 	AdvancedLayout bool `json:"advanced_layout"`
 	Draft          bool `json:"draft"`
@@ -58,8 +59,9 @@ func RunLocal(cfg *config.Config) Report {
 	layoutOK := report.checkLayoutCatalog()
 	draftOK := report.checkWeChatConfig(cfg)
 
+	report.Readiness.FormatLocal = modeOK && cfg.DefaultConvertMode == "local" && themeOK
 	report.Readiness.FormatAPI = modeOK && cfg.DefaultConvertMode == "api" && apiOK && themeOK
-	report.Readiness.AdvancedLayout = report.Readiness.FormatAPI && layoutOK
+	report.Readiness.AdvancedLayout = (report.Readiness.FormatLocal || report.Readiness.FormatAPI) && layoutOK
 	report.Readiness.Draft = draftOK
 	report.Overall = overallFromChecks(report.Checks)
 	return report
@@ -85,7 +87,7 @@ func LoadError(err error) Report {
 
 func (r *Report) checkMode(cfg *config.Config) bool {
 	mode := strings.TrimSpace(cfg.DefaultConvertMode)
-	if mode == "api" || mode == "ai" {
+	if mode == "local" || mode == "api" || mode == "ai" {
 		r.add(Check{
 			ID:      "config.mode",
 			Status:  StatusPass,
@@ -99,7 +101,7 @@ func (r *Report) checkMode(cfg *config.Config) bool {
 		Blocking: true,
 		Message:  fmt.Sprintf("default convert mode %q is invalid", mode),
 		NextActions: []string{
-			"Set `api.convert_mode: api` or `CONVERT_MODE=api` for API rendering.",
+			"Set `api.convert_mode: local` or `CONVERT_MODE=local` for free local rendering.",
 			"Use `ai` only when you intentionally want AI-mode prompt output.",
 		},
 	})

@@ -318,9 +318,9 @@ md2wechat config show --format json
 
 ---
 
-### Q7：我没传 `--mode`，默认到底走 API 还是 AI？
+### Q7：我没传 `--mode`，默认走哪种模式？
 
-**默认一定是 API。**
+**默认走 `api.convert_mode` / `CONVERT_MODE`；都没配置时是本地模式（`local`）。**
 
 也就是：
 
@@ -328,19 +328,13 @@ md2wechat config show --format json
 md2wechat convert article.md
 ```
 
-当前等价于：
+在默认配置下等价于：
 
 ```bash
-md2wechat convert article.md --mode api
+md2wechat convert article.md --mode local
 ```
 
-只有你显式传：
-
-```bash
-md2wechat convert article.md --mode ai
-```
-
-才会进入 AI 模式。
+本地模式在本机渲染主题和高级排版模块，不需要 API Key。只有显式传 `--mode api` 才调用远程排版服务，显式传 `--mode ai` 才进入 AI 模式。
 
 ---
 
@@ -350,7 +344,7 @@ md2wechat convert article.md --mode ai
 
 1. 你改的不是当前生效的配置文件
 2. 环境变量覆盖了配置文件
-3. 你以为 `api.convert_mode` 会覆盖 `convert` 默认行为
+3. 命令行 `--mode` 覆盖了 `api.convert_mode`
 
 先执行：
 
@@ -367,26 +361,28 @@ md2wechat config show --format json
 
 注意：
 
-- `api.convert_mode` / `CONVERT_MODE` 当前不会覆盖“`convert` 不传 `--mode` 默认是 API”这个行为
+- 不传 `--mode` 时，`inspect` / `preview` / `convert` 使用 `api.convert_mode` / `CONVERT_MODE`；显式 `--mode` 优先
 
 ---
 
 ### Q8：API 模式提示需要 API Key
 
-API 模式需要 `md2wechat` 排版服务的 API Key。
+只有 `--mode api` 需要 `md2wechat` 排版服务的 API Key。
 
 如果你没配 API Key，有两条路：
 
-**方案 A：配置 API Key**
+**方案 A：改走本地模式（推荐，免费）**
+
+```bash
+md2wechat convert article.md --mode local
+```
+
+如果配置里写了 `api.convert_mode: api`，改成 `local` 或删掉这一行。
+
+**方案 B：配置 API Key**
 
 ```bash
 export MD2WECHAT_API_KEY="your_key"
-```
-
-**方案 B：显式改走 AI 模式**
-
-```bash
-md2wechat convert article.md --mode ai --theme autumn-warm
 ```
 
 ---
@@ -405,10 +401,10 @@ md2wechat convert article.md --mode ai --theme autumn-warm
 
 它不是“本地自动完成 HTML 排版”的完全闭环。
 
-如果你要稳定、直接的 HTML 结果，优先用：
+如果你要稳定、直接的 HTML 结果，优先用默认的本地模式：
 
 ```bash
-md2wechat convert article.md --mode api
+md2wechat convert article.md --mode local
 ```
 
 如果你想理解当前 AI 模式的真实行为，先看：
@@ -471,7 +467,7 @@ md2wechat prompts show cover-default --kind image --json
 主题发现结果里要重点看两个字段：
 
 - `selectable`: `true` 才能作为 `convert --theme` 直接使用
-- `type`: 必须和转换模式匹配，API 模式选 `api` 主题，AI 模式选 `ai` 主题
+- `type`: 必须和转换模式匹配，本地模式和 API 模式选 `api` 主题，AI 模式选 `ai` 主题
 
 `api-collection` 这类集合描述会出现在发现结果里，但它不是可执行主题，`selectable` 会是 `false`。
 
@@ -798,7 +794,7 @@ export WECHAT_PROXY_URL="https://wechat-egress-url-provided-by-md2wechat.example
 
 微信后台白名单填高级版 API 服务提供的固定出口 IP。不要自行拼接代理主机、端口或部署形态；以服务侧提供的完整 URL 为准。需要开通固定出口能力或企业私有化方案时，请联系作者进行 `API咨询`。`HTTPS_PROXY` 只适合作为全局代理兜底背景，优先用 `wechat.proxy_url` / `WECHAT_PROXY_URL`。
 
-启用代理模式后，上传、草稿和图片消息副作用前需要有效的 `MD2WECHAT_API_KEY`。
+代理模式只是本地配置，上传、草稿和图片消息副作用不需要 `MD2WECHAT_API_KEY`。
 
 ---
 
@@ -895,7 +891,7 @@ md2wechat prompts list --json
 
 `config validate` 只说明配置能被加载和解析，不代表每个转换路径都可执行。`convert` 还会检查：
 
-- API 模式是否有 API key
+- `--mode api` 时是否有 API key（本地模式不需要）
 - 选择的主题是否存在
 - 主题是否 `selectable: true`
 - 主题 `type` 是否匹配当前 `--mode`
@@ -915,11 +911,11 @@ md2wechat themes list --json
 md2wechat doctor --json
 ```
 
-`doctor` 不调用远程 API，不验证 live auth，不上传图片，也不创建草稿。它只通过 `data.readiness.format_api` / `data.readiness.advanced_layout` / `data.readiness.draft` 报告本地配置、默认 API 转换、默认主题、layout catalog 和 WeChat 草稿凭证是否具备可尝试性。
+`doctor` 不调用远程 API，不验证 live auth，不上传图片，也不创建草稿。它只通过 `data.readiness.format_local` / `data.readiness.format_api` / `data.readiness.advanced_layout` / `data.readiness.draft` 报告本地配置、默认转换模式、默认主题、layout catalog 和 WeChat 草稿凭证是否具备可尝试性。本地模式下缺少 API key 只是非阻断警告。
 
 ---
 
-### How do I discover layout modules supported in API mode?
+### How do I discover layout modules supported in local and API mode?
 
 ```bash
 md2wechat layout list --json           # 59 recommended modules (default lifecycle)
@@ -984,7 +980,7 @@ md2wechat config validate --json
 md2wechat config show --format json
 md2wechat upload_image --json cover.png
 md2wechat test-draft --json draft.html cover.png
-md2wechat convert article.md --mode api --upload --draft --cover cover.png --json
+md2wechat convert article.md --upload --draft --cover cover.png --json
 ```
 
 如果你还要测 AI：

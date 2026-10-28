@@ -273,7 +273,7 @@ func initConfigFile(outputFile string) error {
 		ImageAPIBase:          "https://ark.cn-beijing.volces.com/api/v3",
 		ImageModel:            "doubao-seedream-5-0-pro-260628",
 		ImageSize:             "2K",
-		DefaultConvertMode:    "api",
+		DefaultConvertMode:    "local",
 		DefaultTheme:          "default",
 		DefaultBackgroundType: "none",
 		CompressImages:        true,

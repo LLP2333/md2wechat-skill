@@ -1480,7 +1480,6 @@ func preserveConvertPreflightGlobals(t *testing.T) {
 	t.Helper()
 	oldCfg, oldLog := cfg, log
 	oldAccount := wechatAccountName
-	oldValidateAPIKey := validateAPIKeyForWeChatAccount
 	oldMode, oldTheme, oldAPIKey := convertMode, convertTheme, convertAPIKey
 	oldFontSize, oldBackground := convertFontSize, convertBackgroundType
 	oldCustomPrompt, oldOutput := convertCustomPrompt, convertOutput
@@ -1493,7 +1492,6 @@ func preserveConvertPreflightGlobals(t *testing.T) {
 	t.Cleanup(func() {
 		cfg, log = oldCfg, oldLog
 		wechatAccountName = oldAccount
-		validateAPIKeyForWeChatAccount = oldValidateAPIKey
 		convertMode, convertTheme, convertAPIKey = oldMode, oldTheme, oldAPIKey
 		convertFontSize, convertBackgroundType = oldFontSize, oldBackground
 		convertCustomPrompt, convertOutput = oldCustomPrompt, oldOutput
@@ -1527,7 +1525,7 @@ func setConvertPreflightDefaults() {
 	jsonOutput = false
 }
 
-func TestRunConvertRejectsInvalidCoverBeforeNamedAccountAPIKeyValidation(t *testing.T) {
+func TestRunConvertRejectsInvalidCoverBeforeNamedAccountSideEffects(t *testing.T) {
 	preserveConvertPreflightGlobals(t)
 	setConvertPreflightDefaults()
 
@@ -1549,11 +1547,6 @@ func TestRunConvertRejectsInvalidCoverBeforeNamedAccountAPIKeyValidation(t *test
 	newDraftCreator = func() publish.DraftCreator { return drafter }
 	uploadCoverImageFn = func(string) (string, error) { return "cover-id", nil }
 
-	validatorCalls := 0
-	validateAPIKeyForWeChatAccount = func(string) error {
-		validatorCalls++
-		return nil
-	}
 	markdownPath := filepath.Join(t.TempDir(), "article.md")
 	if err := os.WriteFile(markdownPath, []byte("# Title\n"), 0600); err != nil {
 		t.Fatalf("write markdown: %v", err)
@@ -1564,12 +1557,12 @@ func TestRunConvertRejectsInvalidCoverBeforeNamedAccountAPIKeyValidation(t *test
 	if !ok || cliErr.Code != codeConvertDraftFailed {
 		t.Fatalf("runConvert() error = %#v, want %s", err, codeConvertDraftFailed)
 	}
-	if validatorCalls != 0 || len(conv.reqs) != 0 || processor.totalCalls() != 0 || len(drafter.artifacts) != 0 {
-		t.Fatalf("invalid cover caused effects: validator=%d convert=%d assets=%d drafts=%d", validatorCalls, len(conv.reqs), processor.totalCalls(), len(drafter.artifacts))
+	if len(conv.reqs) != 0 || processor.totalCalls() != 0 || len(drafter.artifacts) != 0 {
+		t.Fatalf("invalid cover caused effects: convert=%d assets=%d drafts=%d", len(conv.reqs), processor.totalCalls(), len(drafter.artifacts))
 	}
 }
 
-func TestRunConvertRejectsInvalidLocalAssetBeforeProxyAPIKeyValidation(t *testing.T) {
+func TestRunConvertRejectsInvalidLocalAssetBeforeProxySideEffects(t *testing.T) {
 	preserveConvertPreflightGlobals(t)
 	setConvertPreflightDefaults()
 
@@ -1596,11 +1589,6 @@ func TestRunConvertRejectsInvalidLocalAssetBeforeProxyAPIKeyValidation(t *testin
 	newMarkdownConverter = func() converter.Converter { return conv }
 	newImageProcessor = func() imageProcessor { return processor }
 
-	validatorCalls := 0
-	validateAPIKeyForWeChatAccount = func(string) error {
-		validatorCalls++
-		return nil
-	}
 	dir := t.TempDir()
 	markdownPath := filepath.Join(dir, "article.md")
 	if err := os.WriteFile(markdownPath, []byte("# Title\n\n![image](missing.png)\n"), 0600); err != nil {
@@ -1612,7 +1600,7 @@ func TestRunConvertRejectsInvalidLocalAssetBeforeProxyAPIKeyValidation(t *testin
 	if !ok || cliErr.Code != codeConvertImageFailed {
 		t.Fatalf("runConvert() error = %#v, want %s", err, codeConvertImageFailed)
 	}
-	if validatorCalls != 0 || len(conv.reqs) != 0 || processor.totalCalls() != 0 {
-		t.Fatalf("invalid local asset caused effects: validator=%d convert=%d assets=%d", validatorCalls, len(conv.reqs), processor.totalCalls())
+	if len(conv.reqs) != 0 || processor.totalCalls() != 0 {
+		t.Fatalf("invalid local asset caused effects: convert=%d assets=%d", len(conv.reqs), processor.totalCalls())
 	}
 }

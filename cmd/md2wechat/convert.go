@@ -95,11 +95,11 @@ var (
 
 func init() {
 	// 添加 flags
-	convertCmd.Flags().StringVar(&convertMode, "mode", "api", "Conversion mode: api or ai")
+	convertCmd.Flags().StringVar(&convertMode, "mode", "", "Conversion mode: local (default, free), api, or ai")
 	convertCmd.Flags().StringVar(&convertTheme, "theme", "default", "Theme name")
 	convertCmd.Flags().StringVar(&convertAPIKey, "api-key", "", "API key for md2wechat.cn")
-	convertCmd.Flags().StringVar(&convertFontSize, "font-size", "medium", "Font size: small/medium/large (API mode only)")
-	convertCmd.Flags().StringVar(&convertBackgroundType, "background-type", "none", "Background type: default/grid/none (API mode only)")
+	convertCmd.Flags().StringVar(&convertFontSize, "font-size", "medium", "Font size: small/medium/large (local and API mode)")
+	convertCmd.Flags().StringVar(&convertBackgroundType, "background-type", "none", "Background type: default/grid/none (local and API mode)")
 	convertCmd.Flags().StringVar(&convertCustomPrompt, "custom-prompt", "", "Custom AI prompt (AI mode only)")
 	convertCmd.Flags().StringVarP(&convertOutput, "output", "o", "", "Output HTML file path")
 	convertCmd.Flags().BoolVar(&convertPreview, "preview", false, "Preview only, do not upload images")
@@ -117,6 +117,7 @@ func init() {
 func runConvert(cmd *cobra.Command, args []string) error {
 	markdownFile := args[0]
 	applyEffectiveCommandTheme(cmd, &convertTheme)
+	convertMode = effectiveConvertMode(convertMode)
 
 	if err := validateConvertConfig(); err != nil {
 		return err
@@ -186,7 +187,7 @@ func runConvert(cmd *cobra.Command, args []string) error {
 		return mapConvertServiceError(err)
 	}
 	if convertUpload || convertDraft {
-		if err := prepareWeChatSideEffectWithAPIKey(convertAPIKey); err != nil {
+		if err := prepareWeChatSideEffect(); err != nil {
 			return err
 		}
 	}
@@ -251,6 +252,18 @@ func applyEffectiveCommandTheme(cmd *cobra.Command, theme *string) {
 	*theme = effectiveDefaultTheme(cfg)
 }
 
+// effectiveConvertMode resolves an unset --mode flag to the configured
+// default, falling back to free local rendering.
+func effectiveConvertMode(mode string) string {
+	if mode = strings.TrimSpace(mode); mode != "" {
+		return mode
+	}
+	if cfg != nil && strings.TrimSpace(cfg.DefaultConvertMode) != "" {
+		return strings.TrimSpace(cfg.DefaultConvertMode)
+	}
+	return string(converter.DefaultMode)
+}
+
 // handleAIResult 处理 AI 模式结果
 func handleAIResult(result *converter.ConvertResult, markdownFile string) error {
 	prompt, images, ok := converter.GetAIRequestInfo(result)
@@ -306,7 +319,7 @@ func resolveAIPromptOutputPath(outputPath string) string {
 
 func validateConvertConfig() error {
 	switch convertMode {
-	case "", "api", "ai":
+	case "local", "api", "ai":
 	default:
 		return newCLIError(codeConvertInvalid, fmt.Sprintf("invalid convert mode: %s", convertMode))
 	}
@@ -359,7 +372,7 @@ func mapConvertServiceError(err error) error {
 func validateConvertThemeCompatibility() error {
 	mode := converter.ConvertMode(convertMode)
 	if mode == "" {
-		mode = converter.ModeAPI
+		mode = converter.DefaultMode
 	}
 	if mode == converter.ModeAI && strings.TrimSpace(convertCustomPrompt) != "" {
 		return nil

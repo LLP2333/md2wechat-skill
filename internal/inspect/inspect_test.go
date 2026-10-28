@@ -247,22 +247,20 @@ func TestBlockedReadinessTargetsContract(t *testing.T) {
 	}
 }
 
-func TestRunPublishAPIKeyReadinessMatrix(t *testing.T) {
+// TestRunPublishNeedsNoAPIKeyMatrix guards that named accounts and proxy
+// publishing are plain local configuration and never wait on an md2wechat key.
+func TestRunPublishNeedsNoAPIKeyMatrix(t *testing.T) {
 	tests := []struct {
 		name         string
 		namedAccount bool
 		proxyURL     string
-		apiKey       string
 		upload       bool
 		draft        bool
-		wantBlocker  bool
 	}{
-		{name: "direct credentials do not require API key", upload: true, draft: true},
-		{name: "named account upload only without API key", namedAccount: true, upload: true, wantBlocker: true},
-		{name: "named account draft only without API key", namedAccount: true, draft: true, wantBlocker: true},
-		{name: "named account with API key", namedAccount: true, apiKey: "key", upload: true, draft: true},
-		{name: "proxy without API key", proxyURL: "https://proxy.example.com", upload: true, draft: true, wantBlocker: true},
-		{name: "proxy with API key", proxyURL: "https://proxy.example.com", apiKey: "key", upload: true, draft: true},
+		{name: "direct credentials", upload: true, draft: true},
+		{name: "named account upload only", namedAccount: true, upload: true},
+		{name: "named account draft only", namedAccount: true, draft: true},
+		{name: "proxy", proxyURL: "https://proxy.example.com", upload: true, draft: true},
 	}
 
 	for _, tt := range tests {
@@ -270,8 +268,8 @@ func TestRunPublishAPIKeyReadinessMatrix(t *testing.T) {
 			result, err := Run(&Input{
 				MarkdownFile:    filepath.Join(t.TempDir(), "article.md"),
 				Markdown:        "# 标题\n",
-				Mode:            "ai",
-				Theme:           "autumn-warm",
+				Mode:            "local",
+				Theme:           "default",
 				UploadRequested: tt.upload,
 				DraftRequested:  tt.draft,
 				CoverMediaID:    "existing-cover-id",
@@ -280,52 +278,24 @@ func TestRunPublishAPIKeyReadinessMatrix(t *testing.T) {
 					WechatSecret:       "secret",
 					WechatAccountNamed: tt.namedAccount,
 					WechatProxyURL:     tt.proxyURL,
-					MD2WechatAPIKey:    tt.apiKey,
 				},
 			})
 			if err != nil {
 				t.Fatalf("Run() error = %v", err)
 			}
-
 			if !result.Readiness.ConvertReady || result.Readiness.Targets.Convert != ReadinessTargetReady {
 				t.Fatalf("convert readiness = %#v", result.Readiness)
 			}
-
-			check, checkFound := findCheck(result.Checks, "MISSING_PUBLISH_API_KEY")
-			blocker, blockerFound := findReadinessBlocker(result.Readiness.Blockers, "MISSING_PUBLISH_API_KEY")
-			if checkFound != tt.wantBlocker || blockerFound != tt.wantBlocker {
-				t.Fatalf("check found = %t, blocker found = %t, want blocker = %t; checks = %#v, blockers = %#v", checkFound, blockerFound, tt.wantBlocker, result.Checks, result.Readiness.Blockers)
-			}
-
-			if !tt.wantBlocker {
-				if !result.Readiness.UploadReady || (tt.draft && !result.Readiness.DraftReady) {
-					t.Fatalf("publish readiness = %#v", result.Readiness)
+			for _, code := range []string{"MISSING_PUBLISH_API_KEY", "MISSING_API_KEY"} {
+				if _, found := findCheck(result.Checks, code); found {
+					t.Fatalf("unexpected %s check: %#v", code, result.Checks)
 				}
-				if result.Readiness.Targets.Upload != ReadinessTargetReady || result.Readiness.Targets.Draft != ReadinessTargetReady {
-					t.Fatalf("publish targets = %#v", result.Readiness.Targets)
-				}
-				assertReadinessLegacyFieldsMatchTargets(t, result.Readiness)
-				return
 			}
-
-			if check.SuggestedFix == "" {
-				t.Fatal("MISSING_PUBLISH_API_KEY suggested_fix is empty")
-			}
-			if !slices.Equal(blocker.Blocks, []string{"upload", "draft"}) {
-				t.Fatalf("MISSING_PUBLISH_API_KEY blocks = %#v", blocker.Blocks)
-			}
-			if result.Readiness.UploadReady || result.Readiness.DraftReady {
+			if !result.Readiness.UploadReady || (tt.draft && !result.Readiness.DraftReady) {
 				t.Fatalf("publish readiness = %#v", result.Readiness)
 			}
-			if result.Readiness.Targets.Upload != ReadinessTargetBlocked {
-				t.Fatalf("upload target = %q, want blocked", result.Readiness.Targets.Upload)
-			}
-			wantDraftTarget := ReadinessTargetNotRequested
-			if tt.draft {
-				wantDraftTarget = ReadinessTargetBlocked
-			}
-			if result.Readiness.Targets.Draft != wantDraftTarget {
-				t.Fatalf("draft target = %q, want %q", result.Readiness.Targets.Draft, wantDraftTarget)
+			if result.Readiness.Targets.Upload != ReadinessTargetReady {
+				t.Fatalf("upload target = %q", result.Readiness.Targets.Upload)
 			}
 			assertReadinessLegacyFieldsMatchTargets(t, result.Readiness)
 		})

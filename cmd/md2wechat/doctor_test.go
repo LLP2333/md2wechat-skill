@@ -8,12 +8,8 @@ import (
 	"github.com/geekjourneyx/md2wechat-skill/internal/layoutcatalog"
 )
 
-func TestDoctorJSONReportsBlockedWhenAPIKeyMissing(t *testing.T) {
-	chdirToRepoRoot(t)
-	isolateDoctorEnv(t)
-	layoutcatalog.ResetDefaultCatalogForTests()
-	t.Cleanup(layoutcatalog.ResetDefaultCatalogForTests)
-
+func runDoctorJSON(t *testing.T) map[string]any {
+	t.Helper()
 	oldJSON := jsonOutput
 	t.Cleanup(func() {
 		jsonOutput = oldJSON
@@ -31,12 +27,42 @@ func TestDoctorJSONReportsBlockedWhenAPIKeyMissing(t *testing.T) {
 	if response["success"] != true || response["code"] != codeDoctorCompleted {
 		t.Fatalf("unexpected response: %#v", response)
 	}
-	data := response["data"].(map[string]any)
-	if data["overall"] != "blocked" || data["live"] != false {
+	return response["data"].(map[string]any)
+}
+
+func TestDoctorJSONLocalModeIsReadyWithoutAPIKey(t *testing.T) {
+	chdirToRepoRoot(t)
+	isolateDoctorEnv(t)
+	layoutcatalog.ResetDefaultCatalogForTests()
+	t.Cleanup(layoutcatalog.ResetDefaultCatalogForTests)
+
+	data := runDoctorJSON(t)
+	if data["overall"] == "blocked" || data["live"] != false {
 		t.Fatalf("unexpected doctor data: %#v", data)
 	}
 	readiness := data["readiness"].(map[string]any)
-	if readiness["format_api"] != false || readiness["advanced_layout"] != false {
+	if readiness["format_local"] != true || readiness["advanced_layout"] != true || readiness["format_api"] != false {
+		t.Fatalf("unexpected readiness: %#v", readiness)
+	}
+	check := findDoctorCheck(t, data, "api.config")
+	if check["status"] != "warn" || check["blocking"] != false {
+		t.Fatalf("missing API key must not block local mode: %#v", check)
+	}
+}
+
+func TestDoctorJSONReportsBlockedWhenAPIModeKeyMissing(t *testing.T) {
+	chdirToRepoRoot(t)
+	isolateDoctorEnv(t)
+	t.Setenv("CONVERT_MODE", "api")
+	layoutcatalog.ResetDefaultCatalogForTests()
+	t.Cleanup(layoutcatalog.ResetDefaultCatalogForTests)
+
+	data := runDoctorJSON(t)
+	if data["overall"] != "blocked" {
+		t.Fatalf("unexpected doctor data: %#v", data)
+	}
+	readiness := data["readiness"].(map[string]any)
+	if readiness["format_api"] != false || readiness["advanced_layout"] != false || readiness["format_local"] != false {
 		t.Fatalf("unexpected readiness: %#v", readiness)
 	}
 	check := findDoctorCheck(t, data, "api.config")
@@ -73,7 +99,7 @@ func TestDoctorJSONReadyWithLocalConfigPresent(t *testing.T) {
 		t.Fatalf("unexpected doctor data: %#v", data)
 	}
 	readiness := data["readiness"].(map[string]any)
-	if readiness["format_api"] != true || readiness["advanced_layout"] != true || readiness["draft"] != true {
+	if readiness["format_local"] != true || readiness["advanced_layout"] != true || readiness["draft"] != true {
 		t.Fatalf("unexpected readiness: %#v", readiness)
 	}
 	if check := findDoctorCheck(t, data, "layout.catalog"); check["status"] != "pass" {

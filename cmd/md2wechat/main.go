@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,10 +8,8 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/geekjourneyx/md2wechat-skill/internal/action"
-	"github.com/geekjourneyx/md2wechat-skill/internal/apikey"
 	"github.com/geekjourneyx/md2wechat-skill/internal/config"
 	"github.com/geekjourneyx/md2wechat-skill/internal/draft"
 	"github.com/spf13/cobra"
@@ -100,11 +97,6 @@ const (
 )
 
 var wechatAccountName string
-
-var validateAPIKeyForWeChatAccount = func(apiKey string) error {
-	validator := apikey.NewValidatorWithTimeout(cfg.MD2WechatBaseURL, apiKey, time.Duration(cfg.HTTPTimeout)*time.Second)
-	return validator.Validate(context.Background())
-}
 
 type cliResponse struct {
 	Success       bool           `json:"success"`
@@ -335,42 +327,14 @@ func addRootCommands(root *cobra.Command) {
 }
 
 func prepareWeChatSideEffect() error {
-	return prepareWeChatSideEffectWithAPIKey("")
-}
-
-func prepareWeChatSideEffectWithAPIKey(apiKeyOverride string) error {
 	if err := cfg.ResolveWeChatAccount(wechatAccountName); err != nil {
 		return mapConfigAccountError(err)
 	}
 	if err := cfg.ValidateForWeChat(); err != nil {
 		return wrapCLIError(codeConfigInvalid, err, err.Error())
 	}
-	requiresAPIKey := cfg.WechatAccountNamed || strings.TrimSpace(cfg.WechatProxyURL) != ""
-	if !requiresAPIKey {
-		return nil
-	}
-	apiKey := strings.TrimSpace(apiKeyOverride)
-	if apiKey == "" {
-		apiKey = strings.TrimSpace(cfg.MD2WechatAPIKey)
-	}
-	if apiKey == "" {
-		if !cfg.WechatAccountNamed {
-			return newCLIError(codeAPIKeyRequired, "API_KEY_REQUIRED: MD2WECHAT_API_KEY is required for WeChat proxy mode")
-		}
-		return newCLIError(codeAPIKeyRequired, "API_KEY_REQUIRED: MD2WECHAT_API_KEY is required for named WeChat accounts")
-	}
-	if err := validateAPIKeyForWeChatAccount(apiKey); err != nil {
-		switch {
-		case apikey.IsRequired(err), strings.Contains(err.Error(), codeAPIKeyRequired):
-			return newCLIError(codeAPIKeyRequired, err.Error())
-		case apikey.IsInvalid(err), strings.Contains(err.Error(), codeAPIKeyInvalid):
-			return newCLIError(codeAPIKeyInvalid, err.Error())
-		case apikey.IsVerifyFailed(err), strings.Contains(err.Error(), codeAPIKeyVerifyFailed):
-			return newCLIError(codeAPIKeyVerifyFailed, err.Error())
-		default:
-			return newCLIError(codeAPIKeyVerifyFailed, err.Error())
-		}
-	}
+	// Named accounts and wechat.proxy_url are local configuration; publishing
+	// through them no longer requires an md2wechat API key.
 	return nil
 }
 

@@ -326,7 +326,6 @@ func TestRunCreateImagePostValidatesPreviewBeforeAuthAndCreate(t *testing.T) {
 	oldOpenComment, oldFansOnly := imagePostOpenComment, imagePostFansOnly
 	oldDryRun, oldOutput := imagePostDryRun, imagePostOutput
 	oldServiceFactory, oldIsTerminalFn := newImagePostService, isTerminalFn
-	oldValidateAPIKey := validateAPIKeyForWeChatAccount
 	t.Cleanup(func() {
 		cfg, log = oldCfg, oldLog
 		imagePostTitle, imagePostContent = oldTitle, oldContent
@@ -334,7 +333,6 @@ func TestRunCreateImagePostValidatesPreviewBeforeAuthAndCreate(t *testing.T) {
 		imagePostOpenComment, imagePostFansOnly = oldOpenComment, oldFansOnly
 		imagePostDryRun, imagePostOutput = oldDryRun, oldOutput
 		newImagePostService, isTerminalFn = oldServiceFactory, oldIsTerminalFn
-		validateAPIKeyForWeChatAccount = oldValidateAPIKey
 	})
 
 	setup := func(events *[]string, service *fakeImagePostService) {
@@ -356,10 +354,6 @@ func TestRunCreateImagePostValidatesPreviewBeforeAuthAndCreate(t *testing.T) {
 		isTerminalFn = func() bool { return true }
 		service.events = events
 		newImagePostService = func() imagePostService { return service }
-		validateAPIKeyForWeChatAccount = func(string) error {
-			*events = append(*events, "auth")
-			return nil
-		}
 	}
 
 	t.Run("invalid preview blocks auth and create", func(t *testing.T) {
@@ -394,8 +388,8 @@ func TestRunCreateImagePostValidatesPreviewBeforeAuthAndCreate(t *testing.T) {
 		if _, err := runCreateImagePost(); err != nil {
 			t.Fatalf("runCreateImagePost() error = %v", err)
 		}
-		if !reflect.DeepEqual(events, []string{"preview", "auth", "create"}) {
-			t.Fatalf("call order = %#v, want preview, auth, create", events)
+		if !reflect.DeepEqual(events, []string{"preview", "create"}) {
+			t.Fatalf("call order = %#v, want preview, create", events)
 		}
 	})
 }
@@ -407,7 +401,6 @@ func TestRunCreateImagePostRejectsInvalidOutputBeforeAuthAndCreate(t *testing.T)
 	oldOpenComment, oldFansOnly := imagePostOpenComment, imagePostFansOnly
 	oldDryRun, oldOutput := imagePostDryRun, imagePostOutput
 	oldServiceFactory, oldIsTerminalFn := newImagePostService, isTerminalFn
-	oldValidateAPIKey := validateAPIKeyForWeChatAccount
 	t.Cleanup(func() {
 		cfg, log = oldCfg, oldLog
 		imagePostTitle, imagePostContent = oldTitle, oldContent
@@ -415,7 +408,6 @@ func TestRunCreateImagePostRejectsInvalidOutputBeforeAuthAndCreate(t *testing.T)
 		imagePostOpenComment, imagePostFansOnly = oldOpenComment, oldFansOnly
 		imagePostDryRun, imagePostOutput = oldDryRun, oldOutput
 		newImagePostService, isTerminalFn = oldServiceFactory, oldIsTerminalFn
-		validateAPIKeyForWeChatAccount = oldValidateAPIKey
 	})
 
 	var events []string
@@ -442,10 +434,6 @@ func TestRunCreateImagePostRejectsInvalidOutputBeforeAuthAndCreate(t *testing.T)
 		createResult:  &publish.ImagePostResult{MediaID: "draft-1", ImageCount: 1},
 	}
 	newImagePostService = func() imagePostService { return service }
-	validateAPIKeyForWeChatAccount = func(string) error {
-		events = append(events, "auth")
-		return nil
-	}
 
 	response, err := runCreateImagePost()
 	if err == nil {

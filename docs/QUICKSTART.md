@@ -105,7 +105,7 @@ AI 模式会生成可交给外部 AI 的结构化输出：
 md2wechat convert article.md --mode ai --theme autumn-warm --json
 ```
 
-如果你更关注稳定性和直接转换，优先使用 API 模式。
+如果你更关注稳定性和直接转换，使用默认的本地模式（不传 `--mode`，或 `--mode local`），不需要 API Key。
 
 ## 两条常用路径
 
@@ -146,7 +146,7 @@ md2wechat create_image_post --title "Weekend Trip" --images a.jpg,b.jpg --dry-ru
 
 1. [安装指南](INSTALL.md)
 2. [完整使用说明](USAGE.md)
-3. [高级排版模块教程](LAYOUT.md) ← API 模式专属功能
+3. [高级排版模块教程](LAYOUT.md) ← 本地模式（默认）和 API 模式可用
 4. [故障排查](TROUBLESHOOTING.md)
 5. [架构说明](ARCHITECTURE.md)
 

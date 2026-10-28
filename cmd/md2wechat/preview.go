@@ -78,7 +78,7 @@ var previewCmd = &cobra.Command{
 }
 
 func init() {
-	previewCmd.Flags().StringVar(&previewMode, "mode", "api", "Preview context mode: api or ai")
+	previewCmd.Flags().StringVar(&previewMode, "mode", "", "Preview context mode: local (default, free), api, or ai")
 	previewCmd.Flags().StringVar(&previewTheme, "theme", "default", "Theme name")
 	previewCmd.Flags().StringVar(&previewFontSize, "font-size", "medium", "Font size: small/medium/large")
 	previewCmd.Flags().StringVar(&previewBackgroundType, "background-type", "none", "Background type: default/grid/none")

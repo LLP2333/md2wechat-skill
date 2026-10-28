@@ -1,7 +1,7 @@
 # 高级排版模块完全教程
 
-> **前提**：高级排版模块是 **API 模式**专属功能。`convert` 命令默认即 API 模式，无需额外参数。  
-> 如需 API 访问权限，请联系作者咨询。
+> **前提**：高级排版模块在 **本地模式**（默认，免费，无需 API Key）和 API 模式下渲染，AI 模式不解析。`convert` 默认即本地模式，无需额外参数。  
+> 本地模式把交互模块输出为完整静态内容，`motion` 字段不生效；视觉效果和远程 API 不完全一致。
 
 本教程讲解微信公众号高级排版模块的核心用法。当前数量与完整规格以 `md2wechat capabilities --json`、`layout list --json` 和 `layout show` 为准；默认 discovery 返回 59 个推荐语法。
 
@@ -931,7 +931,7 @@ body: 这是默认 info 样式，适合一般说明。
 
 :::callout
 type: warning
-body: ⚠️ 注意：高级排版模块仅在 API 模式下渲染，AI 模式不支持。
+body: ⚠️ 注意：高级排版模块在本地模式和 API 模式下渲染，AI 模式不支持。
 :::
 
 :::callout
@@ -1092,7 +1092,7 @@ A: 不需要，照着字段填写就行。
 | `svg-swipe-gallery` | `markdown_images` | 多图滑动浏览 |
 | `expand` | `fields_markdown` | 默认完整静态正文；显式 `first-layer` 是待验证的原生折叠候选 |
 
-这些语法只在 API 模式由远端 renderer 转成 HTML。`layout validate` 只证明本地 schema 接受输入，不证明远端已部署对应 renderer，也不证明微信阅读器支持点击。
+这些语法在本地模式下输出为完整静态内容；在 API 模式下由远端 renderer 转成 HTML。`layout validate` 只证明本地 schema 接受输入，不证明远端已部署对应 renderer，也不证明微信阅读器支持点击。
 
 `expand` 的 `title` 必填，`summary` 和 `label` 可选。头部字段与正文之间必须有独立的 `---`；代码围栏中的 `---`、`:::` 是正文，不会结束模块。复杂正文保存到文件后执行：
 
@@ -1328,7 +1328,7 @@ Agent 在选模块时遵循以下顺序：
 
 **原因**：使用了 `--mode ai`，AI 模式不渲染 `:::module` 语法。
 
-**解决**：去掉 `--mode ai`，直接用默认 API 模式：
+**解决**：去掉 `--mode ai`，直接用默认本地模式：
 
 ```bash
 # ❌ 错误
@@ -1375,16 +1375,16 @@ md2wechat layout show tweet --json
 
 ### 错误 4：validate 通过但转换后看不到模块效果
 
-**原因**：本地没有连接到 API 服务，或 API Key 未配置。
+**原因**：配置把默认模式设成了 `ai`，或使用 `--mode api` 时 API Key 未配置。
 
 **解决**：
 
 ```bash
-# 检查配置
-md2wechat config validate --json
+# 查看当前默认模式（应为 local 或 api）
+md2wechat config show --format json | grep default_convert_mode
 
-# 检查 API Key 是否已设置
-md2wechat config show --format json | grep api_key
+# 直接用本地模式转换
+md2wechat convert article.md --mode local
 ```
 
 ### 错误 5：按旧的三种正文格式猜模块语法

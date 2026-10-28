@@ -49,10 +49,9 @@ wechat:
   secret: "你的微信公众号 Secret"
 
 api:
-  md2wechat_key: "你的 md2wechat API Key"
-  md2wechat_base_url: "https://www.md2wechat.cn"
-  convert_mode: "api"
+  convert_mode: "local"       # 默认本地渲染，不需要 API Key
   default_theme: "default"
+  # md2wechat_key: "你的 md2wechat API Key"   # 仅 convert_mode: api 时需要
 ```
 
 ### 3. 验证当前配置
@@ -101,7 +100,7 @@ wechat:
 4. 直接配置的 `wechat.appid` / `wechat.secret`
 5. 唯一的命名账号
 
-命名账号执行上传、生成并上传图片、创建草稿或图片消息时，需要有效的 `MD2WECHAT_API_KEY`。CLI 会在副作用发生前调用 `HEAD /api/auth/validate` 校验 API key。`config show`、`config validate`、`doctor` 和 `config wechat-accounts` 仍然是本地只读命令，不做网络校验。
+命名账号只是本地配置：上传、生成并上传图片、创建草稿或图片消息都不需要 `MD2WECHAT_API_KEY`，CLI 也不会为此发起 API key 校验。`config show`、`config validate`、`doctor` 和 `config wechat-accounts` 是本地只读命令。
 
 查看本地已配置的公众号账号：
 
@@ -185,26 +184,26 @@ export MD2WECHAT_BASE_URL="https://md2wechat.app"
 
 ### 关于默认转换模式
 
-当前 CLI 的默认行为是固定的：
+`inspect` / `preview` / `convert` 不传 `--mode` 时，按下面顺序决定模式：
 
-- 不传 `--mode` 时，`md2wechat convert ...` 始终默认走 `api`
-- 只有显式传入 `--mode ai` 时，才会走 AI 模式
+1. 命令行 `--mode`
+2. `CONVERT_MODE`
+3. `api.convert_mode`
+4. 都没有时默认 `local`
 
-也就是说，下面这个命令：
+也就是说，在默认配置下：
 
 ```bash
 md2wechat convert article.md
 ```
 
-当前一定等价于：
+等价于：
 
 ```bash
-md2wechat convert article.md --mode api
+md2wechat convert article.md --mode local
 ```
 
-所以如果用户没有填写配置，或者没有显式传 `--mode`，默认也是 `api`。
-
-`api.convert_mode` / `CONVERT_MODE` 当前主要用于配置展示、校验和兼容字段；**不会覆盖 `convert` 命令在未传 `--mode` 时的默认行为**。
+本地模式在本机渲染主题和全部高级排版模块，不需要 API Key。`api` 调用远程 md2wechat.cn 排版服务并需要 `api.md2wechat_key`；`ai` 只生成交给宿主 Agent 的 prompt。
 
 ---
 
@@ -291,7 +290,7 @@ api:
   image_provider: "volcengine"
   image_model: "doubao-seedream-5-0-pro-260628"
   image_size: "2K"
-  convert_mode: "api"
+  convert_mode: "local"
   default_theme: "default"
   background_type: "none"
   http_timeout: 30
@@ -358,7 +357,7 @@ image:
 - 完整的 `proxy_url`，直接粘贴到配置文件或 `WECHAT_PROXY_URL`
 - 稳定的微信接口出口 IP，填写到微信后台 `IP 白名单`
 
-`wechat.proxy_url` 只影响微信 API 副作用，不影响 API 排版、图片生成 provider、主题/提示词发现或普通转换。启用后，上传、建草稿和图片消息发送前需要有效的 `MD2WECHAT_API_KEY`。
+`wechat.proxy_url` 只影响微信 API 副作用，不影响 API 排版、图片生成 provider、主题/提示词发现或普通转换。启用后，上传、建草稿和图片消息发送不需要 `MD2WECHAT_API_KEY`。
 
 不要自行拼接代理主机、端口或部署形态；以高级版 API 服务提供的完整 URL 为准。公开配置文档不约定代理端口。需要固定出口能力或企业私有化方案时，请联系作者进行 `API咨询`。`HTTPS_PROXY` 只作为全局代理兜底背景理解，优先使用 `wechat.proxy_url` / `WECHAT_PROXY_URL`，避免把非微信流量一起代理。
 
@@ -366,9 +365,9 @@ image:
 
 | 配置项 | 必需 | 说明 | 默认值 |
 |--------|------|------|--------|
-| `api.md2wechat_key` | API 模式需要 | md2wechat API Key | - |
+| `api.md2wechat_key` | 仅 `convert_mode: api` 需要 | md2wechat API Key | - |
 | `api.md2wechat_base_url` | 否 | 排版 API 域名 | `https://www.md2wechat.cn` |
-| `api.convert_mode` | 否 | 默认转换模式 | `api` |
+| `api.convert_mode` | 否 | 默认转换模式：`local` / `api` / `ai` | `local` |
 | `api.default_theme` | 否 | 默认主题 | `default` |
 | `api.background_type` | 否 | 背景类型 | `none` |
 | `api.http_timeout` | 否 | HTTP 超时秒数 | `30` |
@@ -461,7 +460,9 @@ image:
 
 ### 只预览，不创建草稿
 
-最小需要：
+最小需要：不需要任何配置，默认本地模式即可预览和转换。
+
+如果要改用远程 API 排版：
 
 ```yaml
 api:
@@ -478,9 +479,6 @@ api:
 wechat:
   appid: "your_wechat_appid"
   secret: "your_wechat_secret"
-
-api:
-  md2wechat_key: "your_md2wechat_api_key"
 ```
 
 ### 需要 AI 图片生成

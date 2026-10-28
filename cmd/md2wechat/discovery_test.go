@@ -647,7 +647,7 @@ func TestBuildCapabilitiesDataKeepsConvertContractStableWithInspectAndPreview(t 
 	if !ok {
 		t.Fatalf("convert type = %T", data["convert"])
 	}
-	if convertData["default_mode"] != "api" {
+	if convertData["default_mode"] != "local" {
 		t.Fatalf("default_mode = %#v", convertData["default_mode"])
 	}
 	if convertData["default_theme"] != "default" {
@@ -1094,8 +1094,11 @@ func TestBuildCapabilitiesDataIncludesLayoutWithoutUnreleasedFormat(t *testing.T
 	if got := layout["categories"]; !reflect.DeepEqual(got, wantCategories) {
 		t.Fatalf("layout categories = %#v, want %#v", got, wantCategories)
 	}
-	if layout["api_mode_only"] != true {
+	if layout["api_mode_only"] != false {
 		t.Fatalf("layout api_mode_only = %#v", layout["api_mode_only"])
+	}
+	if got := layout["render_modes"]; !reflect.DeepEqual(got, []string{"local", "api"}) {
+		t.Fatalf("layout render_modes = %#v", got)
 	}
 	if layout["supports_validate"] != true {
 		t.Fatalf("layout supports_validate = %#v", layout["supports_validate"])

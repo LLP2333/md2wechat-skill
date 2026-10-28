@@ -54,7 +54,7 @@ var inspectCmd = &cobra.Command{
 }
 
 func init() {
-	inspectCmd.Flags().StringVar(&inspectMode, "mode", "api", "Inspection context mode: api or ai")
+	inspectCmd.Flags().StringVar(&inspectMode, "mode", "", "Inspection context mode: local (default, free), api, or ai")
 	inspectCmd.Flags().StringVar(&inspectTheme, "theme", "default", "Theme name")
 	inspectCmd.Flags().StringVar(&inspectFontSize, "font-size", "medium", "Font size: small/medium/large")
 	inspectCmd.Flags().StringVar(&inspectBackgroundType, "background-type", "none", "Background type: default/grid/none")
@@ -99,6 +99,7 @@ func runInspect(markdownFile string) (*inspectpkg.Result, error) {
 }
 
 func runInspectWithInput(markdownFile, markdown string, input inspectpkg.Input) (*inspectpkg.Result, error) {
+	input.Mode = effectiveConvertMode(input.Mode)
 	if err := validateConfirmMode(input.Mode); err != nil {
 		return nil, err
 	}
@@ -111,7 +112,7 @@ func runInspectWithInput(markdownFile, markdown string, input inspectpkg.Input) 
 func validateConfirmMode(mode string) error {
 	mode = strings.TrimSpace(mode)
 	switch mode {
-	case "", "api", "ai":
+	case "", "local", "api", "ai":
 		return nil
 	default:
 		return newCLIError(codeConvertInvalid, fmt.Sprintf("invalid convert mode: %s", mode))

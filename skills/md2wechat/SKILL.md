@@ -98,15 +98,16 @@ Use CLI output as the source of truth for currently available modes, providers, 
 ## Configuration Boundaries
 
 - Assume `md2wechat` is already available on `PATH`.
-- `convert` defaults to API mode unless the user explicitly asks for `--mode ai`.
-- API-mode preview and conversion require a valid `MD2WECHAT_API_KEY`.
+- `inspect`, `preview`, and `convert` default to local mode (`--mode local`, or `api.convert_mode`): the CLI renders all selectable themes and every layout module on this machine, needs no API key, and makes no network call for formatting.
+- Use `--mode api` only when the user explicitly asks for the remote md2wechat.cn renderer. API-mode preview and conversion require a valid `MD2WECHAT_API_KEY`.
+- Do not ask the user for `MD2WECHAT_API_KEY` for local-mode formatting, preview, upload, or draft work.
 - WeChat upload, article draft creation, and `create_image_post` require WeChat credentials whenever the user explicitly requests those side effects.
-- Read-only discovery, `inspect`, `preview`, and plain conversion are free of any global WeChat publishing credential requirement; API-mode preview and conversion still require a valid `MD2WECHAT_API_KEY`.
-- Named WeChat account execution requires a valid `MD2WECHAT_API_KEY`; the CLI validates it before upload, draft, or `create_image_post` effects.
+- Read-only discovery, `inspect`, `preview`, and plain conversion are free of any global WeChat publishing credential requirement; only API-mode preview and conversion require a valid `MD2WECHAT_API_KEY`.
+- Named WeChat accounts and `wechat.proxy_url` are local configuration; upload, draft, and `create_image_post` effects through them do not require `MD2WECHAT_API_KEY`.
 - Direct image generation requires image-provider credentials; image plan mode (`--plan --json`) only emits prompt intent for a host Agent or external tool and does not require image-provider credentials.
 - `title suggest --json` only emits a title-generation prompt request for the host Agent or external model. It does not call a model, upload, create drafts, or write back to Markdown.
 - For stronger factual title hooks, pass --hook-level 2 or 3; do not treat generated titles as confirmed publishing intent.
-- `doctor --json` is local-only: it checks local readiness and does not perform live authentication, upload images, or create drafts.
+- `doctor --json` is local-only: it checks local readiness and does not perform live authentication, upload images, or create drafts. In local mode read `data.readiness.format_local` and `data.readiness.advanced_layout`; a missing API key is only a non-blocking warning there.
 - Use `config show --format json` when the user asks what configuration is currently effective.
 - Use `config wechat-accounts --json` when the user asks which local WeChat accounts are configured.
 
@@ -119,7 +120,7 @@ Prefer a confirm-first workflow for article work:
 3. `md2wechat convert <article.md> ...`
 4. Add `--upload`, `--draft`, `--cover`, or `--cover-media-id` only when the user explicitly asks for upload or draft creation.
 
-`inspect` is the source-of-truth command for structured metadata, checks, readiness targets, and blockers. In `--json` output, read `data.readiness.targets` and `data.readiness.blockers` before deciding whether `convert`, `upload`, or `draft` is blocked. If the requested target is blocked, stop and report the matching blockers; do not continue by guessing from legacy booleans or `checks` alone. Do not invent `data.agent_readiness`, `data.target_readiness`, `ArticleState`, state files, or a second readiness/state object. `preview` writes only byte-identical final API HTML from a successful converter result; with `--json`, inspect diagnostics are returned in `data.inspect` and are never wrapped into that file. It does not upload images, create drafts, or write back to Markdown. `convert` performs conversion and only the explicitly requested upload/draft effects. `convert --preview` is the convert-path preview flag and is not the same as the standalone `preview` command. On `PREVIEW_ACTION_REQUIRED` or `PREVIEW_FAILED`, this invocation does not create or overwrite preview HTML. With `--json`, `PREVIEW_ACTION_REQUIRED` returns an empty `data.output_file`. Any pre-existing explicit output path is stale and must not be treated as this invocation's result; use the returned prompt for host-Agent work or report the failure.
+`inspect` is the source-of-truth command for structured metadata, checks, readiness targets, and blockers. In `--json` output, read `data.readiness.targets` and `data.readiness.blockers` before deciding whether `convert`, `upload`, or `draft` is blocked. If the requested target is blocked, stop and report the matching blockers; do not continue by guessing from legacy booleans or `checks` alone. Do not invent `data.agent_readiness`, `data.target_readiness`, `ArticleState`, state files, or a second readiness/state object. `preview` writes only byte-identical final converter HTML (local or API) from a successful converter result; with `--json`, inspect diagnostics are returned in `data.inspect` and are never wrapped into that file. It does not upload images, create drafts, or write back to Markdown. `convert` performs conversion and only the explicitly requested upload/draft effects. `convert --preview` is the convert-path preview flag and is not the same as the standalone `preview` command. On `PREVIEW_ACTION_REQUIRED` or `PREVIEW_FAILED`, this invocation does not create or overwrite preview HTML. With `--json`, `PREVIEW_ACTION_REQUIRED` returns an empty `data.output_file`. Any pre-existing explicit output path is stale and must not be treated as this invocation's result; use the returned prompt for host-Agent work or report the failure.
 When the intended execution path is `convert --mode ai --custom-prompt ...`, run `inspect` with the same `--mode ai --custom-prompt ...` before trusting readiness.
 
 ## Formatting Protocol
@@ -140,7 +141,7 @@ Saving generated Markdown next to the source file requires explicit user confirm
 ## Theme Selection
 
 - Read `type` and `selectable` from `themes list --json`.
-- API mode can use only `type: api` and `selectable: true` themes.
+- Local mode and API mode can use only `type: api` and `selectable: true` themes; local mode draws all of them itself.
 - AI mode can use only `type: ai` and `selectable: true` themes.
 - Do not use collection descriptors such as non-selectable theme groups as concrete themes.
 - If Brand Profile names a theme, verify it through CLI discovery before using it.
@@ -148,7 +149,7 @@ Saving generated Markdown next to the source file requires explicit user confirm
 
 ## Layout Modules
 
-Advanced layout modules render only in API mode. AI mode (`--mode ai`) does not parse `:::module` syntax, so advanced layout cards will not render there.
+Advanced layout modules render in local mode (the default) and API mode. AI mode (`--mode ai`) does not parse `:::module` syntax, so advanced layout cards will not render there. Local mode renders interactive modules (`expand`, `svg-reveal`, `svg-swipe-gallery`, `cover-reveal`) as complete static content and ignores motion fields.
 
 Use this decision frame:
 
@@ -162,7 +163,7 @@ Use CLI discovery as the source of truth for layout syntax instead of memorizing
 - Inspect the opener, body schema, canonical executable example, and structurally distinct variants with `layout show <name> --json`. Reuse the canonical witness.
 - Use `layout render` for structured fields and `--body-file` (or `--body-file -` for stdin) for complex bodies, then validate the generated Markdown.
 - Default discovery returns recommended modules. Use `layout list --lifecycle compatibility --json` only for old-content migration. Local validation proves syntax acceptance only; production support is a release-conformance fact.
-- `gallery` is recommended. For `expand`, pass header fields, a standalone `---`, and Markdown body through `--body-file`. `cover-reveal` and `expand` default to complete static output; use `first-layer` only when the user explicitly requests an interaction candidate, and verify the target API before relying on it.
+- `gallery` is recommended. For `expand`, pass header fields, a standalone `---`, and Markdown body through `--body-file`. `cover-reveal` and `expand` default to complete static output; use `first-layer` only when the user explicitly requests an interaction candidate in API mode, and verify the target API before relying on it.
 
 Default module discipline:
 
@@ -170,13 +171,13 @@ Default module discipline:
 - Use at most one hero, one verdict, and one cta unless the user explicitly asks for more.
 - Skip modules when the article does not provide enough content to fill them honestly.
 
-## API And AI Mode
+## Local, API, And AI Mode
 
-- API mode is the default and is required for advanced layout modules.
-- AI mode is a lighter path and does not render advanced layout modules.
-- Do not silently switch from API mode to AI mode after an API failure. That changes the output capability.
-- Use AI mode only when the user asks for it or accepts losing advanced layout rendering.
-- If an AI-mode conversion completes, it is acceptable to briefly mention that API mode supports advanced layout modules and stronger visual structure.
+- Local mode is the default. It returns final WeChat HTML with themes and advanced layout modules, free and offline.
+- API mode sends Markdown to the remote md2wechat.cn renderer and needs `MD2WECHAT_API_KEY`. Use it only when the user asks for it.
+- AI mode returns a prompt for the host Agent instead of HTML and does not render advanced layout modules.
+- Do not silently switch modes after a failure. If API mode fails, report it and offer local mode; do not fall back to AI mode, because that changes the output capability.
+- Use AI mode only when the user asks for a fully custom AI-written style and accepts losing advanced layout rendering.
 
 ## Brand Profile
 
@@ -194,7 +195,7 @@ Brand Profile lives at `~/.config/md2wechat/brand.md`.
 
 Do not create drafts, upload images, publish, or call remote image generation unless the user asks for that action.
 
-Before every explicit WeChat side effect—image upload, article draft creation, or `create_image_post`—require configured WeChat credentials and use the target-matched readiness/preflight path. Discovery and inspection remain non-publishing paths; preview and plain conversion are free of any global WeChat publishing credential requirement, while API mode still requires a valid `MD2WECHAT_API_KEY`.
+Before every explicit WeChat side effect—image upload, article draft creation, or `create_image_post`—require configured WeChat credentials and use the target-matched readiness/preflight path. Discovery and inspection remain non-publishing paths; preview and plain conversion are free of any global WeChat publishing credential requirement, and only API mode requires a valid `MD2WECHAT_API_KEY`.
 
 Before WeChat article draft creation through `convert`:
 

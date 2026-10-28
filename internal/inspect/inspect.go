@@ -158,8 +158,8 @@ func Run(input *Input) (*Result, error) {
 
 	doc := converter.ParseArticleDocument(input.Markdown)
 	fm, _, hasFrontMatter := parseFrontMatterSource(input.Markdown)
-	mode := firstNonEmpty(input.Mode, "api")
-	if mode != "api" && mode != "ai" {
+	mode := firstNonEmpty(input.Mode, string(converter.DefaultMode))
+	if mode != "local" && mode != "api" && mode != "ai" {
 		return nil, fmt.Errorf("invalid convert mode: %s", mode)
 	}
 	theme := firstNonEmpty(input.Theme, "default")
@@ -460,7 +460,7 @@ func buildChecks(input *Input, result *Result) []Check {
 			Code:         "MISSING_API_KEY",
 			Message:      "API mode requires MD2WECHAT_API_KEY",
 			Field:        "mode",
-			SuggestedFix: "set MD2WECHAT_API_KEY or switch to --mode ai",
+			SuggestedFix: "set MD2WECHAT_API_KEY or switch to the free --mode local",
 		})
 	}
 
@@ -472,7 +472,7 @@ func buildChecks(input *Input, result *Result) []Check {
 			Code:         "AI_MODE_ACTION_REQUIRED",
 			Message:      "AI mode produces a prompt/request instead of final HTML until an external model completes the flow",
 			Field:        "mode",
-			SuggestedFix: "use --mode api for exact preview or complete the AI prompt externally",
+			SuggestedFix: "use --mode local for exact preview or complete the AI prompt externally",
 		})
 	}
 
@@ -484,15 +484,6 @@ func buildChecks(input *Input, result *Result) []Check {
 				Message:      "Upload and draft flows require WECHAT_APPID and WECHAT_SECRET",
 				Field:        "config",
 				SuggestedFix: "set WECHAT_APPID and WECHAT_SECRET or configure them in ~/.config/md2wechat/config.yaml",
-			})
-		}
-		if publishAPIKeyRequired(input.Config) && !apiKeyAvailable(input.Config) {
-			checks = append(checks, Check{
-				Level:        LevelError,
-				Code:         "MISSING_PUBLISH_API_KEY",
-				Message:      "Named-account and proxy publish paths require MD2WECHAT_API_KEY",
-				Field:        "config",
-				SuggestedFix: "set MD2WECHAT_API_KEY before upload or draft, or use direct WeChat credentials without a named account or proxy",
 			})
 		}
 	}
@@ -560,7 +551,7 @@ func buildChecks(input *Input, result *Result) []Check {
 func appendThemeCompatibilityCheck(result *Result, checks *[]Check) {
 	mode := converter.ConvertMode(strings.TrimSpace(result.Context.Mode))
 	if mode == "" {
-		mode = converter.ModeAPI
+		mode = converter.DefaultMode
 	}
 	theme := strings.TrimSpace(result.Context.Theme)
 	if theme == "" {
@@ -715,12 +706,8 @@ func apiKeyAvailable(cfg *config.Config) bool {
 	return cfg != nil && strings.TrimSpace(cfg.MD2WechatAPIKey) != ""
 }
 
-func publishAPIKeyRequired(cfg *config.Config) bool {
-	return cfg != nil && (cfg.WechatAccountNamed || strings.TrimSpace(cfg.WechatProxyURL) != "")
-}
-
 func convertReadyFor(mode string, cfg *config.Config) bool {
-	if mode == "ai" {
+	if mode == "ai" || mode == "local" {
 		return true
 	}
 	return apiKeyAvailable(cfg)
@@ -731,7 +718,7 @@ func uploadReadyFor(cfg *config.Config) bool {
 }
 
 func previewFidelityFor(mode string, apiKeyReady bool) string {
-	if mode == "api" && apiKeyReady {
+	if mode == "local" || (mode == "api" && apiKeyReady) {
 		return PreviewFidelityExact
 	}
 	return PreviewFidelityDegraded

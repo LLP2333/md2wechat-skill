@@ -1,5 +1,5 @@
 // Package converter 提供 Markdown 到微信公众号 HTML 的转换功能
-// 支持两种转换模式：API 模式（调用 md2wechat.cn）和 AI 模式（通过 Claude 生成）
+// 支持三种转换模式：本地模式（默认，本机渲染）、API 模式（调用 md2wechat.cn）和 AI 模式（通过 Claude 生成）
 package converter
 
 import (
@@ -17,9 +17,13 @@ import (
 type ConvertMode string
 
 const (
-	ModeAPI ConvertMode = "api" // API 模式：调用 md2wechat.cn
-	ModeAI  ConvertMode = "ai"  // AI 模式：通过 Claude 生成
+	ModeLocal ConvertMode = "local" // 本地模式：本机渲染主题和高级排版模块，无需 API Key
+	ModeAPI   ConvertMode = "api"   // API 模式：调用 md2wechat.cn
+	ModeAI    ConvertMode = "ai"    // AI 模式：通过 Claude 生成
 )
+
+// DefaultMode 是未显式指定模式时使用的转换模式。
+const DefaultMode = ModeLocal
 
 // ImageType 图片类型
 type ImageType string
@@ -119,6 +123,8 @@ func (c *converter) Convert(req *ConvertRequest) *ConvertResult {
 
 	// 根据模式选择转换器
 	switch req.Mode {
+	case ModeLocal:
+		return c.convertViaLocal(req)
 	case ModeAPI:
 		return c.convertViaAPI(req)
 	case ModeAI:
@@ -152,7 +158,7 @@ func (c *converter) validateRequest(req *ConvertRequest) error {
 	}
 
 	if req.Mode == "" {
-		req.Mode = ModeAPI
+		req.Mode = DefaultMode
 	}
 
 	if req.Theme == "" {
@@ -167,8 +173,8 @@ func (c *converter) validateRequest(req *ConvertRequest) error {
 		if req.APIKey == "" {
 			req.APIKey = c.cfg.MD2WechatAPIKey
 		}
-	case ModeAI:
-		// AI 模式不需要额外验证
+	case ModeLocal, ModeAI:
+		// 本地模式和 AI 模式不需要额外验证
 	}
 
 	return nil
