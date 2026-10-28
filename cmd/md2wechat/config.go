@@ -266,8 +266,6 @@ func initConfigFile(outputFile string) error {
 	cfg := &config.Config{
 		WechatAppID:           "your_wechat_appid",
 		WechatSecret:          "your_wechat_secret",
-		MD2WechatAPIKey:       "your_md2wechat_api_key",
-		MD2WechatBaseURL:      "https://www.md2wechat.cn",
 		ImageProvider:         "volcengine",
 		ImageAPIKey:           "your_image_api_key",
 		ImageAPIBase:          "https://ark.cn-beijing.volces.com/api/v3",

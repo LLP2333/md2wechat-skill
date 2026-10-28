@@ -344,7 +344,7 @@ func TestConfigInitWritesSampleVolcengineImageSettings(t *testing.T) {
 
 	content := string(data)
 	expectedSnippets := []string{
-		"md2wechat_base_url: https://www.md2wechat.cn",
+		"convert_mode: local",
 		"image_provider: volcengine",
 		"image_base_url: https://ark.cn-beijing.volces.com/api/v3",
 		"image_model: doubao-seedream-5-0-pro-260628",
@@ -355,7 +355,7 @@ func TestConfigInitWritesSampleVolcengineImageSettings(t *testing.T) {
 			t.Fatalf("expected generated config to contain %q, got:\n%s", snippet, content)
 		}
 	}
-	for _, forbidden := range []string{"default_account:", "accounts:"} {
+	for _, forbidden := range []string{"default_account:", "accounts:", "md2wechat_key", "md2wechat_base_url", "md2wechat.cn"} {
 		if strings.Contains(content, forbidden) {
 			t.Fatalf("generated single-account config should not contain %q:\n%s", forbidden, content)
 		}

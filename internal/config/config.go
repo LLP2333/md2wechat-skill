@@ -68,8 +68,8 @@ type configFile struct {
 	} `json:"wechat" yaml:"wechat"`
 
 	API struct {
-		MD2WechatKey     string `json:"md2wechat_key" yaml:"md2wechat_key"`
-		MD2WechatBaseURL string `json:"md2wechat_base_url" yaml:"md2wechat_base_url"`
+		MD2WechatKey     string `json:"md2wechat_key,omitempty" yaml:"md2wechat_key,omitempty"`
+		MD2WechatBaseURL string `json:"md2wechat_base_url,omitempty" yaml:"md2wechat_base_url,omitempty"`
 		ImageKey         string `json:"image_key" yaml:"image_key"`
 		ImageBaseURL     string `json:"image_base_url" yaml:"image_base_url"`
 		ImageProvider    string `json:"image_provider" yaml:"image_provider"`
