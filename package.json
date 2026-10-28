@@ -1,6 +1,6 @@
 {
   "name": "@qvqw2233/wechat-md",
-  "version": "3.9.1",
+  "version": "3.9.2",
   "description": "Community build of the md2wechat CLI with a free local renderer (no API key). Installs the matching GitHub Release binary.",
   "license": "SEE LICENSE IN LICENSE",
   "repository": {

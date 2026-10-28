@@ -55,7 +55,7 @@ Windows 下 `md2wechat.cmd` 在 `npm prefix -g` 输出的目录里，把这个�
 
 ---
 
-### Q1.1：`npm install -g @qvqw2233/wechat-md@3.9.1` 提示 `npmmirror` tarball `404`
+### Q1.1：`npm install -g @qvqw2233/wechat-md@3.9.2` 提示 `npmmirror` tarball `404`
 
 这通常不是包没发布，而是你的 npm 当前走的是：
 
@@ -74,7 +74,7 @@ npm config get registry
 如果输出是 `https://registry.npmmirror.com/`，直接改用官方源安装：
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.1 --registry=https://registry.npmjs.org/
+npm install -g @qvqw2233/wechat-md@3.9.2 --registry=https://registry.npmjs.org/
 ```
 
 如果你想把默认源切回官方 npm：

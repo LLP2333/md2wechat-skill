@@ -2,7 +2,7 @@
 
 md2wechat 社区版只提供一种安装方式：npm。
 
-当前安装说明对应 v3.9.1。
+当前安装说明对应 v3.9.2。
 
 ## 目录
 
@@ -32,7 +32,7 @@ CLI 不启动或安装浏览器，不管理登录资料，也不要求固定扩�
 ## 安装
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.1
+npm install -g @qvqw2233/wechat-md@3.9.2
 ```
 
 安装后的命令名是 `md2wechat`。
@@ -42,7 +42,7 @@ npm install -g @qvqw2233/wechat-md@3.9.1
 如果你的 npm 默认指向 `https://registry.npmmirror.com`，而新版本刚发布，镜像 tarball 可能会短暂 `404`。先用官方源安装：
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.1 --registry=https://registry.npmjs.org/
+npm install -g @qvqw2233/wechat-md@3.9.2 --registry=https://registry.npmjs.org/
 ```
 
 维护者在 npm 发布新版本后，应手动执行一次：

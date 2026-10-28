@@ -25,7 +25,7 @@
 本仓库是 [geekjourneyx/md2wechat-skill](https://github.com/geekjourneyx/md2wechat-skill) 的社区版：默认在本机免费完成排版，不需要 API Key，只通过 npm 安装。与原作者无关联，问题请在 [Issues](https://github.com/LLP2333/md2wechat-skill/issues) 反馈。
 
 > [!TIP]
-> **v3.9.1 本地免费排版：默认 `--mode local` 在本机渲染 48 个主题和全部高级排版模块（83 个推荐场景、59 个推荐语法），不需要 API Key。** 通过 `npm install -g @qvqw2233/wechat-md` 安装，CLI 和两套 skill 都在 npm 包里；互动模块完整静态展示，微信内效果仍待验证。[布局指南](docs/LAYOUT.md) · [版本化安装](docs/INSTALL.md)
+> **v3.9.2 本地免费排版：默认 `--mode local` 在本机渲染 48 个主题和全部高级排版模块（83 个推荐场景、59 个推荐语法），不需要 API Key。** 通过 `npm install -g @qvqw2233/wechat-md` 安装，CLI 和两套 skill 都在 npm 包里；互动模块完整静态展示，微信内效果仍待验证。[布局指南](docs/LAYOUT.md) · [版本化安装](docs/INSTALL.md)
 
 ---
 
@@ -79,7 +79,7 @@ md2wechat 把公众号发布流程拆成一组可验证的 CLI 命令：
 ## 快速开始
 
 ```bash
-npm install -g @qvqw2233/wechat-md@3.9.1
+npm install -g @qvqw2233/wechat-md@3.9.2
 md2wechat version --json
 md2wechat config init --json
 md2wechat config validate --json

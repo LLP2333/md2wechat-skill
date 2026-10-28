@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.9.2] - 2026-10-28
+
+### Fixed
+- **config init**: the generated config no longer contains `md2wechat_key` or `md2wechat_base_url`; empty values for these keys are omitted when saving
+
+### Technical Details
+- **Modified Files**: `cmd/md2wechat/config.go`, `cmd/md2wechat/config_test.go`, `internal/config/config.go`
+
+### Migration Guide
+No migration required. Existing config files keep working; the two lines can be deleted.
+
 ## [3.9.1] - 2026-10-28
 
 ### Added
@@ -1067,6 +1078,7 @@ No migration required. The write command is a new feature and doesn't affect exi
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [3.9.2] | 2026-10-28 | Config template no longer includes paid API fields |
 | [3.9.1] | 2026-10-28 | npm-only install, skills shipped in npm, paid API docs removed |
 | [3.9.0] | 2026-10-28 | Free local renderer as default convert mode |
 | [1.9.0] | 2025-02-06 | Image Post (小绿书/newspic) support |
