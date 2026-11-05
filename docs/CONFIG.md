@@ -241,6 +241,7 @@ wechat:
   secret: "your_wechat_secret"
   # 可选：只让微信接口请求走你自己的固定出口代理
   # proxy_url: "http://user:pass@your-proxy.example.com:3128"
+  # proxy_url: "socks5://127.0.0.1:10808"
 
 api:
   image_key: "your_image_api_key"
@@ -308,9 +309,11 @@ image:
 |--------|------|------|
 | `wechat.appid` | 创建草稿、上传图片时需要 | 微信公众号 AppID |
 | `wechat.secret` | 创建草稿、上传图片时需要 | 微信公众号 Secret |
-| `wechat.proxy_url` | 否 | 只给微信上传、草稿和图片消息使用的 HTTP/HTTPS 前向代理 |
+| `wechat.proxy_url` | 否 | 只给微信上传、草稿和图片消息使用的前向代理（HTTP / HTTPS / SOCKS5） |
 
 `wechat.proxy_url` 用来解决运行环境公网 IP 动态变化、导致微信白名单反复失效的问题：准备一台有固定公网 IP 的代理服务器，把它的完整代理 URL 写到配置文件或 `WECHAT_PROXY_URL`，再把这台代理的出口 IP 填进微信后台 `IP 白名单`。
+
+支持 `http://`、`https://`、`socks5://`、`socks5h://` 四种协议；`socks5h://` 会让代理端解析域名。本地 SOCKS5 代理（如 xray / v2ray）可直接写 `socks5://127.0.0.1:10808`。
 
 `wechat.proxy_url` 只影响微信接口请求，不影响排版、图片生成 provider、主题/提示词发现或普通转换，也不需要任何额外的 API Key。`HTTPS_PROXY` 会把所有流量一起代理，优先使用 `wechat.proxy_url` / `WECHAT_PROXY_URL`。
 

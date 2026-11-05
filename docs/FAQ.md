@@ -693,12 +693,15 @@ ip xxx.xxx.xxx.xxx not in whitelist
 
 ### Q15.1：运行环境 IP 会变，能不能给微信请求单独走固定出口？
 
-可以。准备一台有固定公网 IP 的 HTTP/HTTPS 前向代理，把完整代理 URL 写进配置：
+可以。准备一台有固定公网 IP 的前向代理（HTTP / HTTPS / SOCKS5），把完整代理 URL 写进配置：
 
 ```yaml
 wechat:
   proxy_url: "http://user:pass@your-proxy.example.com:3128"
+  # 或 SOCKS5：proxy_url: "socks5://127.0.0.1:10808"
 ```
+
+支持 `http://`、`https://`、`socks5://`、`socks5h://` 四种协议；`socks5h://` 会让代理端解析域名。本地 SOCKS5 代理（如 xray / v2ray）可直接写 `socks5://127.0.0.1:10808`。
 
 或临时环境变量：
 

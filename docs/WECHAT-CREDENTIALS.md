@@ -284,14 +284,17 @@ curl ipinfo.io/ip
 
 ### 4. 使用固定出口代理
 
-如果你不能直接在运行 `md2wechat` 的机器上获得固定公网 IP，可以准备一台有固定公网 IP 的 HTTP/HTTPS 前向代理，只让微信接口请求走这台代理。
+如果你不能直接在运行 `md2wechat` 的机器上获得固定公网 IP，可以准备一台有固定公网 IP 的前向代理（HTTP / HTTPS / SOCKS5），只让微信接口请求走这台代理。
 
 配置文件写法：
 
 ```yaml
 wechat:
   proxy_url: "http://user:pass@your-proxy.example.com:3128"
+  # 或 SOCKS5：proxy_url: "socks5://127.0.0.1:10808"
 ```
+
+支持 `http://`、`https://`、`socks5://`、`socks5h://` 四种协议；`socks5h://` 会让代理端解析域名。本地 SOCKS5 代理（如 xray / v2ray）可直接写 `socks5://127.0.0.1:10808`。
 
 也可以用环境变量临时覆盖：
 

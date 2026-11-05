@@ -403,7 +403,9 @@ func TestLoadWithDefaultsRejectsInvalidWechatProxyURLs(t *testing.T) {
 		"http://:8080",
 		"https://",
 		"ftp://proxy.example.com",
-		"socks5://proxy.example.com",
+		"socks4://proxy.example.com:1080",
+		"socks5://",
+		"socks5://proxy.example.com:0",
 		"http://proxy.example.com:",
 		"http://proxy.example.com:0",
 		"http://proxy.example.com:-1",
@@ -436,6 +438,8 @@ func TestLoadWithDefaultsAcceptsValidWechatProxyPorts(t *testing.T) {
 		"http://proxy.example.com:1",
 		"http://proxy.example.com:65535",
 		"http://[::1]:18443",
+		"socks5://127.0.0.1:10809",
+		"socks5h://user:pass@proxy.example.com:1080",
 	}
 
 	for _, proxyURL := range cases {

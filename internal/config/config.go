@@ -520,6 +520,16 @@ func (c *Config) validateCommon() error {
 	return nil
 }
 
+// IsSupportedWechatProxyScheme reports whether net/http can use the scheme as
+// a forward proxy for WeChat API requests. socks5h resolves DNS on the proxy.
+func IsSupportedWechatProxyScheme(scheme string) bool {
+	switch scheme {
+	case "http", "https", "socks5", "socks5h":
+		return true
+	}
+	return false
+}
+
 func validateWechatProxyURL(proxyURL string) error {
 	proxyURL = strings.TrimSpace(proxyURL)
 	if proxyURL == "" {
@@ -529,13 +539,13 @@ func validateWechatProxyURL(proxyURL string) error {
 	if err != nil {
 		return &ConfigError{
 			Field:   "WechatProxyURL",
-			Message: "WECHAT_PROXY_URL must be a valid http:// or https:// URL",
+			Message: "WECHAT_PROXY_URL must be a valid http://, https://, socks5:// or socks5h:// URL",
 		}
 	}
-	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+	if !IsSupportedWechatProxyScheme(parsed.Scheme) {
 		return &ConfigError{
 			Field:   "WechatProxyURL",
-			Message: "WECHAT_PROXY_URL only supports http:// and https://",
+			Message: "WECHAT_PROXY_URL only supports http://, https://, socks5:// and socks5h://",
 		}
 	}
 	if parsed.Hostname() == "" {

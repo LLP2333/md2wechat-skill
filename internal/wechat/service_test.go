@@ -60,6 +60,47 @@ func TestNewServiceConfiguresWechatHTTPClientProxyAndTimeout(t *testing.T) {
 	}
 }
 
+func TestNewWechatHTTPClientProxySchemes(t *testing.T) {
+	cases := []struct {
+		proxyURL string
+		wantErr  bool
+	}{
+		{proxyURL: "http://proxy.example.com:8080"},
+		{proxyURL: "https://proxy.example.com:8443"},
+		{proxyURL: "socks5://127.0.0.1:10809"},
+		{proxyURL: "socks5h://user:pass@proxy.example.com:1080"},
+		{proxyURL: "socks4://proxy.example.com:1080", wantErr: true},
+		{proxyURL: "ftp://proxy.example.com", wantErr: true},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.proxyURL, func(t *testing.T) {
+			client, err := newWechatHTTPClient(&config.Config{WechatProxyURL: tc.proxyURL})
+			if tc.wantErr {
+				if err == nil || !strings.Contains(err.Error(), "unsupported scheme") {
+					t.Fatalf("newWechatHTTPClient() error = %v, want unsupported scheme", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("newWechatHTTPClient() error = %v", err)
+			}
+			transport, ok := client.Transport.(*http.Transport)
+			if !ok {
+				t.Fatalf("transport type = %T, want *http.Transport", client.Transport)
+			}
+			req := &http.Request{URL: mustParseURL(t, "https://api.weixin.qq.com/cgi-bin/token")}
+			got, err := transport.Proxy(req)
+			if err != nil {
+				t.Fatalf("transport proxy error: %v", err)
+			}
+			if got.String() != tc.proxyURL {
+				t.Fatalf("proxy url = %q, want %q", got.String(), tc.proxyURL)
+			}
+		})
+	}
+}
+
 func TestNewServiceUsesDefaultTimeoutAndNoCustomTransportWithoutProxy(t *testing.T) {
 	oldClient := util.DefaultHTTPClient
 	t.Cleanup(func() {

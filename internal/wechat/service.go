@@ -74,7 +74,7 @@ func newWechatHTTPClient(cfg *config.Config) (*http.Client, error) {
 	if err != nil {
 		return client, fmt.Errorf("wechat proxy url: %w", err)
 	}
-	if proxyURL.Scheme != "http" && proxyURL.Scheme != "https" {
+	if !config.IsSupportedWechatProxyScheme(proxyURL.Scheme) {
 		return client, fmt.Errorf("wechat proxy url: unsupported scheme %q", proxyURL.Scheme)
 	}
 	if proxyURL.Hostname() == "" {
