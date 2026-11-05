@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-11-05
+
+### Added
+- **SOCKS5 proxy for WeChat API**: `wechat.proxy_url` / `WECHAT_PROXY_URL` now accept `socks5://` and `socks5h://` in addition to `http://` and `https://`
+  - `socks5h://` resolves DNS on the proxy side
+  - Local SOCKS5 proxies such as xray / v2ray work directly, e.g. `socks5://127.0.0.1:10808`
+
+### Changed
+- **Proxy validation**: config loading and the WeChat HTTP client share one scheme check (`config.IsSupportedWechatProxyScheme`); other schemes such as `socks4://` are still rejected
+
+### Technical Details
+- **Modified Files**: `internal/config/config.go`, `internal/config/config_test.go`, `internal/wechat/service.go`, `internal/wechat/service_test.go`, `docs/CONFIG.md`, `docs/FAQ.md`, `docs/WECHAT-CREDENTIALS.md`
+
+### Migration Guide
+No migration required. Existing HTTP/HTTPS proxy URLs keep working.
+
 ## [3.9.2] - 2026-10-28
 
 ### Fixed
@@ -1078,6 +1094,7 @@ No migration required. The write command is a new feature and doesn't affect exi
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [3.10.0] | 2026-11-05 | SOCKS5 / SOCKS5h support for `wechat.proxy_url` |
 | [3.9.2] | 2026-10-28 | Config template no longer includes paid API fields |
 | [3.9.1] | 2026-10-28 | npm-only install, skills shipped in npm, paid API docs removed |
 | [3.9.0] | 2026-10-28 | Free local renderer as default convert mode |
