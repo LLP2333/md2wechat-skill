@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.1] - 2026-11-06
+
+### Fixed
+- **Empty list items in WeChat**: the local renderer now removes formatting newlines from list and table containers, so the WeChat editor no longer adds empty bullets or numbers
+
+### Technical Details
+- **Modified Files**: `internal/localrender/markdown.go`, `internal/localrender/render_test.go`
+
+### Migration Guide
+No migration required.
+
 ## [3.10.0] - 2026-11-05
 
 ### Added
@@ -1094,6 +1105,7 @@ No migration required. The write command is a new feature and doesn't affect exi
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [3.10.1] | 2026-11-06 | Remove empty list items in the WeChat editor |
 | [3.10.0] | 2026-11-05 | SOCKS5 / SOCKS5h support for `wechat.proxy_url` |
 | [3.9.2] | 2026-10-28 | Config template no longer includes paid API fields |
 | [3.9.1] | 2026-10-28 | npm-only install, skills shipped in npm, paid API docs removed |
