@@ -88,8 +88,26 @@ func (r *renderer) styleNode(n *html.Node) {
 			convertTaskCheckbox(n)
 		}
 	}
+	removeWhitespaceText(n)
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		r.styleNode(c)
+	}
+}
+
+// removeWhitespaceText drops formatting newlines from list and table containers.
+// Browsers ignore them, but the WeChat editor turns them into empty items.
+func removeWhitespaceText(n *html.Node) {
+	switch n.DataAtom {
+	case atom.Ul, atom.Ol, atom.Table, atom.Thead, atom.Tbody, atom.Tfoot, atom.Tr:
+	default:
+		return
+	}
+	for c := n.FirstChild; c != nil; {
+		next := c.NextSibling
+		if c.Type == html.TextNode && strings.TrimSpace(c.Data) == "" {
+			n.RemoveChild(c)
+		}
+		c = next
 	}
 }
 

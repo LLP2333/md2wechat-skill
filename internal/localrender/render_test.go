@@ -3,6 +3,7 @@ package localrender
 import (
 	"errors"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -189,6 +190,28 @@ func TestMarkdownElementsGetInlineStyles(t *testing.T) {
 	}
 	if !strings.Contains(out, "font-size:17px") {
 		t.Errorf("large font size not applied")
+	}
+}
+
+// TestStructuralContainersHaveNoWhitespaceText guards against the WeChat editor
+// turning newlines between list items into empty bullets or numbers.
+func TestStructuralContainersHaveNoWhitespaceText(t *testing.T) {
+	src := "- 一\n- 二\n  - 嵌套\n\n1. 甲\n2. 乙\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- *斜体* **粗体**"
+	out, err := Render(src, Options{Theme: "default"})
+	if err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	for _, re := range []*regexp.Regexp{
+		regexp.MustCompile(`<(ul|ol|thead|tbody|tr)\b[^>]*>\s+<`),
+		regexp.MustCompile(`</(li|th|td|tr|thead|tbody)>\s+<`),
+		regexp.MustCompile(`<table\b[^>]*>\s+<`),
+	} {
+		if match := re.FindString(out); match != "" {
+			t.Errorf("whitespace text left in structural container: %q\n%s", match, out)
+		}
+	}
+	if !strings.Contains(out, "</em> <strong") {
+		t.Errorf("space between inline elements was removed:\n%s", out)
 	}
 }
 
